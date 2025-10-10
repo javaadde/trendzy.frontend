@@ -9,6 +9,9 @@ import axios from "./axios.jsx";
 // PROTECTING HANDLERS
 import ProtectedToAdmin from "./ProtectedToAdmin.jsx";
 import ProtectedRoute from "./ProtectedRoute.jsx";
+import { ProtectedIfLogined } from "./ProtectedIfLogined.jsx";
+import { ProtectedIfNotLogined } from "./ProtectedIfNotLogined.jsx";
+
 
 //  PAGES OF USERS
 import Home from "./pages/user/Home/Home.jsx";
@@ -20,6 +23,7 @@ import Cart from "./pages/user/Cart/Cart.jsx";
 import Products from "./pages/user/Products/Products.jsx";
 import Orders from "./pages/user/Orders/Orders.jsx";
 import OrderDetails from "./pages/user/Orders/OrderDetails.jsx";
+
 
 // PAGES OF ERRORS
 import NotFoundPage from "./pages/error/404.jsx";
@@ -60,22 +64,46 @@ function App() {
             <Route path="/unknown" element={<HomeNotLogined />} />
 
             {/* Login route */}
-            <Route path="/login" element={<SignIn />} />
+            <Route path="/login" element={
+              <ProtectedIfLogined>
+                <SignIn />
+              </ProtectedIfLogined>
+              } />
 
             {/* signup route */}
-            <Route path="/signUp" element={<SignUp />} />
+            <Route path="/signUp" element={
+              <ProtectedIfLogined>
+                <SignUp />
+              </ProtectedIfLogined>
+              } />
+
+
 
             {/* settings route */}
             <Route path="/settings" element={<Setting />} />
 
             {/* cart route */}
-            <Route path="/cart" element={<Cart />} />
+            <Route path="/cart" element={
+              <ProtectedIfNotLogined>
+                <Cart />
+              </ProtectedIfNotLogined>
+              } />
+
 
             {/* cart route */}
-            <Route path="/products" element={<Products />} />
+            <Route path="/products" element={
+              <ProtectedIfNotLogined>
+                <Products/>
+              </ProtectedIfNotLogined>
+              } />
+
 
             {/* ORDERS route */}
-            <Route path="/orders" element={<Orders />} />
+            <Route path="/orders" element={
+              <ProtectedIfNotLogined>
+                <Orders />
+              </ProtectedIfNotLogined>
+              } />
 
             {/* ORDERS route */}
             <Route path="/order/details/:id" element={<OrderDetails />} />
