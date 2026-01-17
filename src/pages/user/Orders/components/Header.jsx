@@ -2,45 +2,59 @@ import { Link } from "react-router-dom";
 
 function Header() {
   return (
-    <>
-      <header className="py-4 items-center bg-white shadow-sm border-b border-gray-200 font-michroma">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M3 3H5L5.4 5M7 13H17L21 5H5.4M7 13L5.4 5M7 13L4.7 15.3C4.3 15.7 4.6 16.5 5.1 16.5H17M17 13V16.5"
-                    stroke="white"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-
-                  <circle cx="9" cy="20" r="1" fill="white" />
-                  <circle cx="20" cy="20" r="1" fill="white" />
-                </svg>
-              </div>
-              <h1 className=" text-2xl font-bold text-black font-michroma">
-                Orders
+    <header
+      className="sticky top-0 z-40"
+      style={{
+        backgroundColor: "rgba(255, 255, 255, 0.95)",
+        backdropFilter: "blur(20px)",
+        borderBottom: "1px solid var(--color-border-light)",
+      }}
+    >
+      <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
+        <div className="flex items-center justify-between h-20">
+          {/* Left - Back & Title */}
+          <div className="flex items-center gap-6">
+            <Link
+              to="/settings"
+              className="flex items-center justify-center w-10 h-10 transition-opacity duration-300 hover:opacity-60"
+              style={{ color: "var(--color-text-primary)" }}
+            >
+              <i className="fa-solid fa-arrow-left"></i>
+            </Link>
+            <div>
+              <h1
+                className="text-2xl font-semibold tracking-tight"
+                style={{
+                  fontFamily: "var(--font-display)",
+                  color: "var(--color-primary)",
+                }}
+              >
+                My Orders
               </h1>
             </div>
+          </div>
 
-            <Link to="/settings">
-              <button className="cursor-pointer text-dark-gray hover:text-black text-3xl">
-                <i className="fa-solid fa-circle-user"></i>
-              </button>
+          {/* Right - Actions */}
+          <div className="flex items-center gap-4">
+            <Link
+              to="/"
+              className="hidden sm:flex items-center justify-center w-10 h-10 transition-opacity duration-300 hover:opacity-60"
+              style={{ color: "var(--color-text-primary)" }}
+            >
+              <i className="fa-solid fa-house"></i>
+            </Link>
+
+            <Link
+              to="/settings"
+              className="flex items-center justify-center w-10 h-10 transition-opacity duration-300 hover:opacity-60"
+              style={{ color: "var(--color-text-primary)" }}
+            >
+              <i className="fa-regular fa-user text-xl"></i>
             </Link>
           </div>
         </div>
-      </header>
-    </>
+      </div>
+    </header>
   );
 }
 

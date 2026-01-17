@@ -1,195 +1,464 @@
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "../../../axios";
 
 function OrderDetails() {
   const { id } = useParams();
-  const [order, setOrder] = useState([]);
+  const [order, setOrder] = useState(null);
   const [items, setItems] = useState([]);
-  const [status,setStatus] = useState()
+  const [status, setStatus] = useState();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     axios
       .get(`/order/${id}`)
       .then((res) => {
-        const data = res.data;
-        setOrder(data);
-        setItems(data.items);
+        setOrder(res.data);
+        setItems(res.data.items);
+        setIsLoading(false);
       })
-      .catch((err) => console.log(err));
-  }, [status]);
+      .catch((err) => {
+        console.log(err);
+        setIsLoading(false);
+      });
+  }, [status, id]);
 
+  const cancellOreder = () => {
+    if (confirm("Are you sure you want to cancel this order?")) {
+      axios
+        .patch(`/order/cancell/${id}`)
+        .then((res) => {
+          setStatus(res.data.updated);
+        })
+        .catch((err) => console.log(err));
+    }
+  };
 
-  const cancellOreder = ()=>{
+  function getStatusStyle(status) {
+    const baseStyle = {
+      fontFamily: "var(--font-body)",
+      fontSize: "0.75rem",
+      fontWeight: "500",
+      letterSpacing: "0.05em",
+      textTransform: "uppercase",
+      padding: "0.5rem 1rem",
+      display: "inline-block",
+    };
 
-    if(confirm("are you sure to cancell")){
-     axios.patch(`/order/cancell/${id}`)
-     .then((res)=>{
-        console.log(res.data);
-        setStatus(res.data.updated)
-     })
-     .catch((err) => console.log(err))
+    switch (status?.toLowerCase()) {
+      case "delivered":
+        return { ...baseStyle, backgroundColor: "#dcfce7", color: "#166534" };
+      case "shipped":
+        return { ...baseStyle, backgroundColor: "#dbeafe", color: "#1e40af" };
+      case "processing":
+        return { ...baseStyle, backgroundColor: "#fef3c7", color: "#92400e" };
+      case "cancelled":
+        return { ...baseStyle, backgroundColor: "#fee2e2", color: "#991b1b" };
+      default:
+        return { ...baseStyle, backgroundColor: "var(--gray-100)", color: "var(--color-text-secondary)" };
     }
   }
 
-  
-  function getStatusColor(status) {
-    switch (status) {
-      case "delivered":
-        return "bg-green-100 text-green-800 px-3 py-1 rounded-full text-md font-medium capitalize";
-      case "shipped":
-        return "bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-md font-medium capitalize";
-      case "processing":
-        return "bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-md font-medium capitalize";
-      case "cancelled":
-        return "bg-red-100 text-red-800 px-3 py-1 rounded-full text-md font-medium capitalize";
-      default:
-        return "bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-md font-medium capitalize";
-    }
+  if (isLoading) {
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: "var(--gray-50)" }}
+      >
+        <div className="loader">
+          <p className="loader-text">Loading</p>
+          <span className="load"></span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!order) {
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: "var(--gray-50)" }}
+      >
+        <p style={{ color: "var(--color-text-muted)" }}>Order not found</p>
+      </div>
+    );
   }
 
   return (
-    <>
-      <div className="p-6 flex items-center font-michroma">
-        <div>
-          <h2
-            className="text-2xl font-bold text-black"
-            id="modalOrderNumber"
-          >
-            {order.user_id}
-          </h2>
-          <p className="text-dark-gray" id="modalOrderDate">
-            {order._id}
-          </p>
+    <div
+      className="min-h-screen"
+      style={{ backgroundColor: "var(--gray-50)" }}
+    >
+      {/* Header */}
+      <header
+        className="sticky top-0 z-40"
+        style={{
+          backgroundColor: "rgba(255, 255, 255, 0.95)",
+          backdropFilter: "blur(20px)",
+          borderBottom: "1px solid var(--color-border-light)",
+        }}
+      >
+        <div className="max-w-[1000px] mx-auto px-6 lg:px-12">
+          <div className="flex items-center justify-between h-20">
+            <div className="flex items-center gap-6">
+              <Link
+                to="/orders"
+                className="flex items-center justify-center w-10 h-10 transition-opacity duration-300 hover:opacity-60"
+                style={{ color: "var(--color-text-primary)" }}
+              >
+                <i className="fa-solid fa-arrow-left"></i>
+              </Link>
+              <div>
+                <h1
+                  className="text-lg lg:text-xl font-semibold tracking-tight"
+                  style={{
+                    fontFamily: "var(--font-display)",
+                    color: "var(--color-primary)",
+                  }}
+                >
+                  Order #{order._id?.slice(-8).toUpperCase()}
+                </h1>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      </header>
 
-      <section className="font-comfortaa">
-        <div className="bg-white rounded-xl shadow-xl w-full">
-          {/* <!-- Content --> */}
-          <div className="p-6">
-            <div className="grid grid-cols-1 gap-8">
+      {/* Main Content */}
+      <main className="py-8 lg:py-12">
+        <div className="max-w-[1000px] mx-auto px-6 lg:px-12">
+          {/* Status Banner */}
+          <div
+            className="p-6 mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+            style={{
+              backgroundColor: "var(--color-secondary)",
+              border: "1px solid var(--color-border-light)",
+            }}
+          >
+            <div>
+              <span
+                className="text-xs font-medium tracking-wider uppercase block mb-2"
+                style={{
+                  fontFamily: "var(--font-body)",
+                  color: "var(--color-text-muted)",
+                }}
+              >
+                Order Status
+              </span>
+              <span style={getStatusStyle(order.status)}>{order.status}</span>
+            </div>
+            <div className="text-right">
+              <span
+                className="text-xs font-medium tracking-wider uppercase block mb-2"
+                style={{
+                  fontFamily: "var(--font-body)",
+                  color: "var(--color-text-muted)",
+                }}
+              >
+                Order Date
+              </span>
+              <span
+                className="text-sm font-medium"
+                style={{
+                  fontFamily: "var(--font-body)",
+                  color: "var(--color-text-primary)",
+                }}
+              >
+                {new Date(order.date).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Order Items */}
+            <div className="lg:col-span-2 space-y-6">
+              <h2
+                className="text-lg font-semibold tracking-tight"
+                style={{
+                  fontFamily: "var(--font-display)",
+                  color: "var(--color-primary)",
+                }}
+              >
+                Order Items
+              </h2>
+
               {items.map((item, index) => (
-                <div className="p-8 " key={index}>
-                  <h3 className="text-lg font-semibold text-black mb-4">
-                    Order Item
-                  </h3>
-                  <div id="modalOrderItems" className="space-y-4">
-                    {/* <!-- Items will be populated here --> */}
+                <div
+                  key={index}
+                  className="flex gap-6 p-6"
+                  style={{
+                    backgroundColor: "var(--color-secondary)",
+                    border: "1px solid var(--color-border-light)",
+                  }}
+                >
+                  <div
+                    className="w-24 h-32 flex-shrink-0 overflow-hidden"
+                    style={{ backgroundColor: "var(--gray-100)" }}
+                  >
+                    <img
+                      src={item.url}
+                      alt={item.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
 
-                    <div className="flex items-center space-x-4 p-4 bg-soft-gray rounded-lg flex-col md:flex-row">
-                      <img
-                        src={item.url}
-                        alt={item.name}
-                        className="w-26 h-36 rounded-lg object-cover"
-                      />
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-black">
-                          {item.name}
-                        </h4>
-                        <p className="text-dark-gray text-sm">
-                          {item.price} &nbsp; x &nbsp; {item.quantity}
-                        </p>
-                      </div>
-                      <div className="text-right pr-5">
-                        <p className="font-semibold text-black">
-                          Subtotal : &nbsp; {item.price * item.quantity}
-                        </p>
-                      </div>
+                  <div className="flex-1 flex flex-col justify-between">
+                    <div>
+                      <h3
+                        className="text-base font-medium tracking-wide mb-1"
+                        style={{
+                          fontFamily: "var(--font-body)",
+                          color: "var(--color-text-primary)",
+                        }}
+                      >
+                        {item.name}
+                      </h3>
+                      <p
+                        className="text-sm"
+                        style={{
+                          fontFamily: "var(--font-body)",
+                          color: "var(--color-text-muted)",
+                        }}
+                      >
+                        Qty: {item.quantity}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <span
+                        className="text-sm"
+                        style={{
+                          fontFamily: "var(--font-body)",
+                          color: "var(--color-text-secondary)",
+                        }}
+                      >
+                        ${item.price} each
+                      </span>
+                      <span
+                        className="text-base font-semibold"
+                        style={{
+                          fontFamily: "var(--font-body)",
+                          color: "var(--color-text-primary)",
+                        }}
+                      >
+                        ${(item.price * item.quantity).toFixed(2)}
+                      </span>
                     </div>
                   </div>
                 </div>
               ))}
+            </div>
 
-              {/*  Order Summary & Details  */}
+            {/* Right Column - Summary & Address */}
+            <div className="space-y-6">
+              {/* Order Summary */}
+              <div
+                className="p-6"
+                style={{
+                  backgroundColor: "var(--color-secondary)",
+                  border: "1px solid var(--color-border-light)",
+                }}
+              >
+                <h3
+                  className="text-lg font-semibold tracking-tight mb-6"
+                  style={{
+                    fontFamily: "var(--font-display)",
+                    color: "var(--color-primary)",
+                  }}
+                >
+                  Order Summary
+                </h3>
 
-              <div className="lg:col-span-1 space-y-6 p-5">
-                {/*  Order Summary */}
-                <div className="bg-soft-gray rounded-xl p-4 px-8">
-                  <h3 className="text-lg font-semibold text-black mb-4">
-                    Order Summary
-                  </h3>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-dark-gray">Subtotal</span>
-                      <span id="modalSubtotal" className="text-black">
-                        {order.total - 5.99}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-dark-gray">Shipping</span>
-                      <span id="modalShipping" className="text-black">
-                        $5.99
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-dark-gray">Tax</span>
-                      <span id="modalTax" className="text-black">
-                        $0.00
-                      </span>
-                    </div>
-                    <div className="border-t border-gray-300 pt-2 mt-2">
-                      <div className="flex justify-between font-semibold">
-                        <span className="text-black">Total</span>
-                        <span id="modalTotal" className="text-black">
-                          {order.total}
-                        </span>
-                      </div>
-                    </div>
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span
+                      className="text-sm"
+                      style={{
+                        fontFamily: "var(--font-body)",
+                        color: "var(--color-text-secondary)",
+                      }}
+                    >
+                      Subtotal
+                    </span>
+                    <span
+                      className="text-sm font-medium"
+                      style={{ fontFamily: "var(--font-body)" }}
+                    >
+                      ${(order.total - 5.99).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span
+                      className="text-sm"
+                      style={{
+                        fontFamily: "var(--font-body)",
+                        color: "var(--color-text-secondary)",
+                      }}
+                    >
+                      Shipping
+                    </span>
+                    <span
+                      className="text-sm font-medium"
+                      style={{ fontFamily: "var(--font-body)" }}
+                    >
+                      $5.99
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span
+                      className="text-sm"
+                      style={{
+                        fontFamily: "var(--font-body)",
+                        color: "var(--color-text-secondary)",
+                      }}
+                    >
+                      Tax
+                    </span>
+                    <span
+                      className="text-sm font-medium"
+                      style={{ fontFamily: "var(--font-body)" }}
+                    >
+                      $0.00
+                    </span>
                   </div>
                 </div>
 
-                {/* <!-- Shipping Address --> */}
-                <div className="bg-soft-gray rounded-xl p-4 px-8">
-                  <h3 className="text-lg font-semibold text-black mb-4">
-                    Shipping Address
-                  </h3>
-                  <div
-                    id="modalShippingAddress"
-                    className="text-sm text-dark-gray"
+                <div
+                  className="flex justify-between pt-4 mt-4"
+                  style={{ borderTop: "1px solid var(--color-border)" }}
+                >
+                  <span
+                    className="text-base font-semibold"
+                    style={{ fontFamily: "var(--font-body)" }}
                   >
-                    {order?.address &&
-                      Object.keys(order?.address).map((key, i) => {
-                        
-                        return (
-                          <p key={i}>
-                            <span className="font-bold"> {key}: </span> &nbsp;
-                            {order.address[key]}
-                          </p>
-                        );
-                      })}
-                  </div>
+                    Total
+                  </span>
+                  <span
+                    className="text-xl font-semibold"
+                    style={{ fontFamily: "var(--font-display)" }}
+                  >
+                    ${order.total}
+                  </span>
                 </div>
+              </div>
 
-                {/* <!-- Order Status --> */}
-                <div className="bg-soft-gray rounded-xl p-4 px-8">
-                  <h3 className="text-xl text-black mb-2">
-                    Order Status
-                  </h3>
-                  <span className={getStatusColor(order.status)} id="modalOrderStatus">{order.status}</span>
-                </div>
+              {/* Shipping Address */}
+              <div
+                className="p-6"
+                style={{
+                  backgroundColor: "var(--color-secondary)",
+                  border: "1px solid var(--color-border-light)",
+                }}
+              >
+                <h3
+                  className="text-lg font-semibold tracking-tight mb-6"
+                  style={{
+                    fontFamily: "var(--font-display)",
+                    color: "var(--color-primary)",
+                  }}
+                >
+                  Shipping Address
+                </h3>
+
+                {order?.address && (
+                  <div className="space-y-2">
+                    {order.address.fullName && (
+                      <p
+                        className="text-sm font-medium"
+                        style={{
+                          fontFamily: "var(--font-body)",
+                          color: "var(--color-text-primary)",
+                        }}
+                      >
+                        {order.address.fullName}
+                      </p>
+                    )}
+                    {order.address.streetAddress && (
+                      <p
+                        className="text-sm"
+                        style={{
+                          fontFamily: "var(--font-body)",
+                          color: "var(--color-text-secondary)",
+                        }}
+                      >
+                        {order.address.streetAddress}
+                        {order.address.apartment && `, ${order.address.apartment}`}
+                      </p>
+                    )}
+                    <p
+                      className="text-sm"
+                      style={{
+                        fontFamily: "var(--font-body)",
+                        color: "var(--color-text-secondary)",
+                      }}
+                    >
+                      {order.address.city && `${order.address.city}, `}
+                      {order.address.state && `${order.address.state} `}
+                      {order.address.pinCode}
+                    </p>
+                    {order.address.phoneNumber && (
+                      <p
+                        className="text-sm mt-2"
+                        style={{
+                          fontFamily: "var(--font-body)",
+                          color: "var(--color-text-secondary)",
+                        }}
+                      >
+                        {order.address.phoneNumber}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Actions */}
+              <div className="space-y-3">
+                <button
+                  className="w-full py-4 text-sm font-medium tracking-widest uppercase transition-all duration-300"
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    backgroundColor: "var(--color-primary)",
+                    color: "var(--color-text-inverse)",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "var(--gray-800)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "var(--color-primary)";
+                  }}
+                >
+                  Track Order
+                </button>
+
+                {order.status !== "cancelled" && order.status !== "delivered" && (
+                  <button
+                    onClick={cancellOreder}
+                    className="w-full py-4 text-sm font-medium tracking-wide transition-colors duration-300"
+                    style={{
+                      fontFamily: "var(--font-body)",
+                      backgroundColor: "transparent",
+                      color: "var(--color-text-muted)",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = "#dc2626";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = "var(--color-text-muted)";
+                    }}
+                  >
+                    Cancel Order
+                  </button>
+                )}
               </div>
             </div>
           </div>
-
-          {/* Footer  */}
-          <div className="p-6 border-t-[2px] border-gray-100 flex justify-center space-x-3 ">
-            <button className="px-6 py-2 bg-black text-white rounded-lg hover:bg-dark-gray cursor-pointer transition-colors font-medium">
-              Track Order
-            </button>
-          </div>
-
-          <div className="p-6  border-gray-100 flex justify-end space-x-3">
-            
-            <button
-            onClick={cancellOreder} 
-            className="px-6 cursor-pointer py-2 hover:bg-gray-400 font-xl underline font-bold rounded-2xl ">
-              Cancel Order
-            </button>
-          </div>
         </div>
-      </section>
-    </>
+      </main>
+    </div>
   );
 }
 

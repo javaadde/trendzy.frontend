@@ -11,16 +11,18 @@ function Body() {
   const [category, setCategory] = useState("");
   const [allCategory, setAllCtegory] = useState([]);
   const [update, setUpdate] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingProductId, setEditingProductId] = useState(null);
 
   const openEditModal = (proID) => {
-    document.getElementById("editModal").classList.remove("hidden");
-    document.getElementById("editModal").classList.add("flex");
-    document.getElementById("editModalProductId").value = proID;
+    setEditingProductId(proID);
+    setShowEditModal(true);
   };
 
   const closeEditModel = () => {
-    // document.getElementById("editModal").classList.remove("flex");
-    document.getElementById("editModal").classList.add("hidden");
+    setShowEditModal(false);
+    setEditingProductId(null);
   };
 
   useEffect(() => {
@@ -33,12 +35,6 @@ function Body() {
         .catch((err) => {
           console.log(err);
         });
-    };
-
-    const fetchByCat = async () => {
-      axios.get(`/products/${category}`).then((res) => {
-        setProducts(res.data);
-      });
     };
 
     const fetchAllCategories = () => {
@@ -54,82 +50,72 @@ function Body() {
 
     fetchAllCategories();
     fetchProducts();
-    fetchByCat();
-  }, [category, update]);
+  }, [update]);
+
+  useEffect(() => {
+    if (category) {
+      axios.get(`/products/${category}`).then((res) => {
+        setProducts(res.data);
+      });
+    } else {
+      setUpdate((prev) => prev + 1);
+    }
+  }, [category]);
 
   const schemaAddProduct = yup.object().shape({
-    discription: yup
-      .string("discription must be in text")
-      .required("please enter the discription"),
-    name: yup
-      .string("name must be string")
-      .required("please add a name to the product"),
-    price: yup
-      .number("price must be a psitive number")
-      .required("please add a price to the product"),
-    category_id: yup
-      .string("catergory must be selected")
-      .required("please select a category"),
+    discription: yup.string().required("Description is required"),
+    name: yup.string().required("Name is required"),
+    price: yup.number().typeError("Price must be a number").required("Price is required").min(0),
+    category_id: yup.string().required("Category is required"),
     image: yup
       .mixed()
-      .required("An image file is required")
-      .test("fileSize", "The file is too large", (value) => {
-        // Check if a file is present and its size is within limits (e.g., 5MB
-        return value && value[0] && value[0].size <= 5242880; // 5MB
-      })
-      .test("fileType", "Unsupported File Format", (value) => {
-        return (
-          value &&
-          value[0] &&
-          ["image/jpeg", "image/png", "image/gif", "image/avif"].includes(
-            value[0].type
-          )
-        );
+      .required("Image is required")
+      .test("fileSize", "File too large (max 5MB)", (value) => {
+        return value && value[0] && value[0].size <= 5242880;
       }),
   });
 
   const {
-    register: register,
-    handleSubmit: handleSubmit,
+    register,
+    handleSubmit,
     formState: { errors },
+    reset,
   } = useForm({
     resolver: yupResolver(schemaAddProduct),
   });
 
   const addProduct = async (data) => {
-    document.getElementById("loading").classList.remove("hidden");
-
-    console.log(data);
-
+    setIsLoading(true);
     const fixedData = { ...data, image: data.image[0] };
     const formData = serialize(fixedData);
 
-    const res = await axios.post("/admin/products/add", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-
-    document.getElementById("loading").classList.add("hidden");
-    const message = res.data.message;
-    showNotification(message);
-    setUpdate(update + 1);
+    try {
+      const res = await axios.post("/admin/products/add", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setIsLoading(false);
+      showNotification(res.data.message);
+      setUpdate((prev) => prev + 1);
+      reset();
+    } catch (err) {
+      setIsLoading(false);
+      console.log(err);
+    }
   };
 
   const deleteProduct = async (id) => {
-    if (confirm("are you sure wanna delete")) {
+    if (confirm("Are you sure you want to delete this product?")) {
       const res = await axios.delete(`/admin/products/delete/${id}`);
-      const message = res.data.message;
-      showNotification(message);
-      setUpdate(update + 1);
+      showNotification(res.data.message);
+      setUpdate((prev) => prev + 1);
     }
   };
 
   const schemaEditProduct = yup.object().shape({
-    _id: yup.string("it must be a strign value not a number"),
-    name: yup.string("name must be a text"),
-    price: yup.number("price must be a number"),
-    category_id: yup.string("must be a text"),
+    _id: yup.string(),
+    name: yup.string(),
+    price: yup.number().typeError("Price must be a number"),
+    category_id: yup.string(),
     image: yup.mixed(),
   });
 
@@ -142,386 +128,375 @@ function Body() {
   });
 
   const editProduct = (data) => {
-    document.getElementById("loading").classList.remove("hidden");
-
-    console.log(data);
-
-    const id = document.getElementById("editModalProductId").value;
-    data._id = id;
-
+    setIsLoading(true);
+    data._id = editingProductId;
     const fixedData = { ...data, image: data.image[0] };
     const formData = serialize(fixedData);
 
     axios.put("admin/products/update", formData).then((res) => {
-      console.log(res);
-      const message = res.data.message;
-      showNotification(message);
+      setIsLoading(false);
+      showNotification(res.data.message);
       closeEditModel();
-      setTimeout(() => {
-        setUpdate(update - 1);
-      }, 200);
-      document.getElementById("loading").classList.add("hidden");
+      setUpdate((prev) => prev + 1);
     });
   };
 
-
-  
-    const showSearchResult = (value) => {
-      
-      axios.post(`/products/search?name=${value}`)
-      .then((res)=>{
-        setProducts(res.data)
+  const showSearchResult = (value) => {
+    axios
+      .post(`/products/search?name=${value}`)
+      .then((res) => {
+        setProducts(res.data);
       })
-      .catch((err) => console.log(err))
-    }
+      .catch((err) => console.log(err));
+  };
 
   return (
     <>
-      <div id="loading" className="hidden fixed top-0 h-screen w-full">
-        <div className="h-screen w-full flex bg-white justify-center items-center">
-          <div className="loader fixed z-999">
-            <span className="loader-text">loading</span>
+      {isLoading && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white/80 backdrop-blur-sm">
+          <div className="loader">
+            <p className="loader-text">Processing</p>
             <span className="load"></span>
           </div>
         </div>
-      </div>
+      )}
 
-      <div className="max-w-7xl mx-auto p-6 font-comfortaa">
-        {/* <!-- Add New Product Section --> */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
-          <h2 className="text-xl font-bold text-black mb-6">Add New Product</h2>
+      <div className="max-w-[1400px] mx-auto p-6 lg:p-12 animate-fade-in">
+        {/* Header Section */}
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 mb-12">
+          <div>
+            <span
+              className="text-[10px] font-semibold tracking-[0.3em] uppercase mb-3 block"
+              style={{
+                fontFamily: "var(--font-body)",
+                color: "var(--color-text-muted)",
+              }}
+            >
+              Management
+            </span>
+            <h2
+              className="text-3xl lg:text-5xl font-semibold tracking-tight"
+              style={{
+                fontFamily: "var(--font-display)",
+                color: "var(--color-primary)",
+              }}
+            >
+              Inventory <span className="italic">Curating</span>
+            </h2>
+          </div>
 
-          <form
-            onSubmit={handleSubmit(addProduct)}
-            id="productForm"
-            className="space-y-4"
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-semibold text-gray-500 mb-2">
-                  Product Name
-                </label>
-                <input
-                  {...register("name")}
-                  type="text"
-                  placeholder="Enter product name"
-                  className="w-full px-4 py-3 bg-gray-100 border-2 border-transparent rounded-lg text-black"
-                />
-                {errors.name && (
-                  <p className="text-red-500 text-sm">
-                    🚨 {errors.name.message}
-                  </p>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-500 mb-2">
-                  Product Discription
-                </label>
-                <input
-                  {...register("discription")}
-                  type="text"
-                  id="discriptionPro"
-                  placeholder="Product discription"
-                  className="w-full px-4 py-3 bg-gray-100 border-2 border-transparent rounded-lg text-black"
-                />
-                {errors.discription && (
-                  <p className="text-red-500 text-sm">
-                    🚨 {errors.discription.message}
-                  </p>
-                )}
-              </div>
+          {/* Search Bar */}
+          <div className="w-full lg:w-96">
+            <div
+              className="flex items-center gap-3 px-6 py-3"
+              style={{
+                backgroundColor: "var(--color-secondary)",
+                border: "1px solid var(--color-border-light)",
+              }}
+            >
+              <i
+                className="fa-solid fa-magnifying-glass text-xs"
+                style={{ color: "var(--color-text-muted)" }}
+              ></i>
+              <input
+                type="text"
+                onChange={(e) => showSearchResult(e.target.value)}
+                placeholder="Search inventory..."
+                className="flex-1 bg-transparent outline-none text-sm"
+                style={{ fontFamily: "var(--font-body)" }}
+              />
             </div>
+          </div>
+        </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-semibold text-gray-500 mb-2">
-                  Price ($)
-                </label>
-                <input
-                  {...register("price")}
-                  type="number"
-                  id="productPrice"
-                  placeholder="0.00"
-                  step="0.01"
-                  min="0"
-                  className="w-full px-4 py-3 bg-gray-100 border-2 border-transparent rounded-lg text-black"
-                />
-                {errors.price && (
-                  <p className="text-red-500 text-sm">
-                    🚨 {errors.price.message}
-                  </p>
-                )}
-              </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+          {/* Add Form Column */}
+          <div className="lg:col-span-1">
+            <div
+              className="p-8 sticky top-24"
+              style={{
+                backgroundColor: "var(--color-secondary)",
+                border: "1px solid var(--color-border-light)",
+              }}
+            >
+              <h3
+                className="text-lg font-semibold tracking-wide mb-8"
+                style={{
+                  fontFamily: "var(--font-display)",
+                  color: "var(--color-primary)",
+                }}
+              >
+                Create New Piece
+              </h3>
 
-              <div>
-                <label className="block text-sm font-semibold text-gray-500 mb-2">
-                  Category
-                </label>
-                <select
-                  {...register("category_id")}
-                  id="productCategory"
-                  className="w-full px-4 py-3 bg-gray-100 border-2 border-transparent rounded-lg text-black"
-                >
-                  <option value="">All</option>
-                  {allCategory.map((catg, index) => (
-                    <option key={index} value={catg.name}>
-                      {catg.name}
-                    </option>
-                  ))}
-                </select>
-                {errors.category_id && (
-                  <p className="text-red-500 text-sm">
-                    🚨 {errors.category_id.message}
-                  </p>
-                )}
-              </div>
-            </div>
+              <form onSubmit={handleSubmit(addProduct)} className="space-y-6">
+                <div>
+                  <label className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-2 block">
+                    Product Name
+                  </label>
+                  <input
+                    {...register("name")}
+                    type="text"
+                    className="w-full px-0 py-3 bg-transparent border-b outline-none text-sm"
+                    style={{ borderBottomColor: "var(--color-border)" }}
+                  />
+                  {errors.name && (
+                    <p className="text-[10px] text-red-500 mt-1 uppercase tracking-wider">
+                      {errors.name.message}
+                    </p>
+                  )}
+                </div>
 
-            <div className="flex justify-between w-full gap-5">
-              {/* <div className="flex flex-col w-1/2">
-                <label className="block text-sm font-semibold text-gray-500 mb-2">
-                  Upload Image
-                </label>
-                <input
-                  {...register("image")}
-                  type="file"
-                  id="productImage"
-                  placeholder="upload your image"
-                  className="w-full px-4 py-3 bg-gray-200 cursor-pointer border-2 border-transparent rounded-lg text-black"
-                />
-                {errors.image && (
-                  <p className="text-red-500 text-sm">
-                    🚨 {errors.image.message}
-                  </p>
-                )}
-              </div> */}
-              <div className="flex flex-col w-1/2 max-w-xs  gap-1.5">
-                <label className="text-sm text-gray-500 font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                  Picture
-                </label>
-                <input
-                  {...register("image")}
-                  id="picture"
-                  type="file"
-                  className="flex h-15 w-full rounded-md border border-gray-300 bg-white px-5 py-3 text-sm text-gray-600
-                      file:border-0 file:bg-gray-100 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-gray-700
-                    hover:file:bg-gray-200 hover:file:cursor-pointer transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-black focus:border-white"
-                />
-              </div>
+                <div>
+                  <label className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-2 block">
+                    Category
+                  </label>
+                  <select
+                    {...register("category_id")}
+                    className="w-full px-0 py-3 bg-transparent border-b outline-none text-sm cursor-pointer"
+                    style={{ borderBottomColor: "var(--color-border)" }}
+                  >
+                    <option value="">Select Category</option>
+                    {allCategory.map((cat, i) => (
+                      <option key={i} value={cat.name}>
+                        {cat.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-              <div className="flex justify-end w-1/2 pt-4">
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <label className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-2 block">
+                      Price ($)
+                    </label>
+                    <input
+                      {...register("price")}
+                      type="number"
+                      step="0.01"
+                      className="w-full px-0 py-3 bg-transparent border-b outline-none text-sm"
+                      style={{ borderBottomColor: "var(--color-border)" }}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-2 block">
+                      Image
+                    </label>
+                    <input
+                      {...register("image")}
+                      type="file"
+                      className="w-full text-[10px] file:mr-4 file:py-2 file:px-4 file:border-0 file:text-[10px] file:font-semibold file:bg-black file:text-white hover:file:bg-gray-800 cursor-pointer"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-2 block">
+                    Description
+                  </label>
+                  <textarea
+                    {...register("discription")}
+                    rows="3"
+                    className="w-full px-0 py-3 bg-transparent border-b outline-none text-sm resize-none"
+                    style={{ borderBottomColor: "var(--color-border)" }}
+                  ></textarea>
+                </div>
+
                 <button
                   type="submit"
-                  defaultValue="Add product"
-                  className="cursor-pointer w-full h-15 border-2 text-black  duration-200 hover:bg-black hover:text-white rounded-lg hover:bg-gray-text-gray-500 transition-all font-semibold"
+                  className="w-full py-5 text-[11px] font-bold tracking-widest uppercase transition-all duration-300 mt-4"
+                  style={{
+                    backgroundColor: "var(--color-primary)",
+                    color: "var(--color-text-inverse)",
+                  }}
                 >
-                  Add Product
+                  Confirm Addition
                 </button>
-              </div>
+              </form>
             </div>
-          </form>
-        </div>
-
-        {/* <!-- Search BAr --> */}
-
-        <div>
-          <div className="font-comfortaa font-bold text-2xl mt-20 p-5">
-            <h1> Search Products :</h1>
           </div>
 
-        <div className="w-full flex py-12 justify-center">
-           <div className="py-3 rounded-l-2xl px-4 text-xl bg-gray-300">
-            <i className="fa-solid fa-magnifying-glass"></i>
-          </div>
-
-          <div className="felx w-1/2 flex-row items-center justify-center">
-            <input
-              onChange={(e)=>{showSearchResult(e.target.value)}}
-              type="text"
-              className="py-3 px-5 w-full text-xl bg-gray-300 rounded-r-xl outline-0"
-              placeholder="Search"
-            />
-          </div>
-        </div>
-
-        </div>
-
-        {/* <!-- Products List --> */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-500">
-          <div className="p-6 border-b border-gray-100 text-center font-michroma">
-            <h2 className="text-4xl font-bold text-black">Products</h2>
-          </div>
-
-          <div className="overflow-x-auto ">
-            <table className="w-full">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="px-6 py-4 text-center text-sm font-bold text-gray-500">
-                    Name
-                  </th>
-                  <th className="px-6 py-4 text-center text-sm font-bold text-gray-500">
-                    Image
-                  </th>
-                  <th className="px-6 py-4 text-center text-sm font-bold text-gray-500">
-                    Discription
-                  </th>
-                  <th className="px-6 py-4 text-center text-sm font-bold text-gray-500">
-                    Price
-                  </th>
-                  <th className="px-6 py-4 text-center text-sm font-bold text-gray-500">
-                    Category
-                  </th>
-                  <th className="px-6 py-4 text-center text-sm font-bold text-gray-500">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-
-              {products.map((pro, i) => {
-                return (
-                  <tbody
-                    key={i}
-                    id="productsTable"
-                    className="h-48 bg-[#F9F9F9] transition-all ease-in-out duration-300 border-t-[1px] border-gray-400 z-0"
+          {/* List Column */}
+          <div className="lg:col-span-2">
+            <div
+              className="overflow-hidden"
+              style={{
+                backgroundColor: "var(--color-secondary)",
+                border: "1px solid var(--color-border-light)",
+              }}
+            >
+              <table className="w-full text-left">
+                <thead>
+                  <tr
+                    className="text-[10px] font-semibold tracking-widest uppercase text-gray-400"
+                    style={{ borderBottom: "1px solid var(--color-border-light)" }}
                   >
-                    <tr>
-                      <td className="text-center rounded-bl-xl">{pro.name}</td>
-
-                      <td className="w-[20%]">
-                        <img src={pro.url} alt="" />
-                      </td>
-
-                      <td className="text-center"> {pro.discription} </td>
-                      <td className="text-center"> {pro.price} </td>
-                      <td className="text-center"> {pro.category_id} </td>
-
-                      <td className="rounded-br-xl">
-                        <div className="w-full flex flex-col justify-center items-center gap-6">
-                          <button
-                            onClick={() => {
-                              openEditModal(pro._id);
-                            }}
-                            className="text-2xl hover:text-blue-600"
+                    <th className="px-8 py-6">Product Information</th>
+                    <th className="px-6 py-6">Category</th>
+                    <th className="px-6 py-6">Price</th>
+                    <th className="px-8 py-6 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {products.map((pro, i) => (
+                    <tr key={i} className="group hover:bg-gray-50/50 transition-colors">
+                      <td className="px-8 py-6">
+                        <div className="flex items-center gap-6">
+                          <div
+                            className="w-16 h-20 flex-shrink-0 overflow-hidden"
+                            style={{ backgroundColor: "var(--gray-100)" }}
                           >
-                            <i className="fa-solid fa-pen-to-square"></i>
-                          </button>
-
-                          <button
-                            onClick={() => {
-                              deleteProduct(pro._id);
-                            }}
-                            className="text-2xl hover:text-blue-600"
-                          >
-                            <i className="fa-solid fa-trash"></i>
-                          </button>
+                            <img
+                              src={pro.url}
+                              alt=""
+                              className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+                            />
+                          </div>
+                          <div>
+                            <p
+                              className="text-sm font-medium tracking-wide mb-1"
+                              style={{ fontFamily: "var(--font-body)" }}
+                            >
+                              {pro.name}
+                            </p>
+                            <p
+                              className="text-[11px] text-gray-400 line-clamp-1 max-w-[200px]"
+                              style={{ fontFamily: "var(--font-body)" }}
+                            >
+                              {pro.discription}
+                            </p>
+                          </div>
                         </div>
                       </td>
+                      <td className="px-6 py-6">
+                        <span
+                          className="text-[10px] font-semibold tracking-widest uppercase px-3 py-1 bg-gray-100"
+                          style={{ fontFamily: "var(--font-body)" }}
+                        >
+                          {pro.category_id}
+                        </span>
+                      </td>
+                      <td className="px-6 py-6">
+                        <span
+                          className="text-sm font-semibold"
+                          style={{ fontFamily: "var(--font-display)" }}
+                        >
+                          ${pro.price}
+                        </span>
+                      </td>
+                      <td className="px-8 py-6 text-right space-x-4">
+                        <button
+                          onClick={() => openEditModal(pro._id)}
+                          className="text-gray-400 hover:text-black transition-colors"
+                        >
+                          <i className="fa-solid fa-pen-to-square text-sm"></i>
+                        </button>
+                        <button
+                          onClick={() => deleteProduct(pro._id)}
+                          className="text-gray-400 hover:text-red-600 transition-colors"
+                        >
+                          <i className="fa-solid fa-trash-can text-sm"></i>
+                        </button>
+                      </td>
                     </tr>
-                  </tbody>
-                );
-              })}
-            </table>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* //  Edit Modal  */}
-      <div
-        id="editModal"
-        className="hidden fixed inset-0 h-screen bg-black bg-opacity-50 items-center justify-center p-4 z-50"
-      >
-        <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
-          <h3 className="text-lg font-bold text-black mb-4">Edit Product</h3>
+      {/* Edit Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={closeEditModel} />
+          <div
+            className="relative w-full max-w-lg p-10 animate-scale-in"
+            style={{ backgroundColor: "var(--color-secondary)" }}
+          >
+            <h3
+              className="text-2xl font-semibold tracking-tight mb-8"
+              style={{ fontFamily: "var(--font-display)" }}
+            >
+              Edit Piece
+            </h3>
 
-          <form onSubmit={handleSubmitEditPro(editProduct)} id="updateForm">
-            <div className="space-y-4">
+            <form onSubmit={handleSubmitEditPro(editProduct)} className="space-y-6">
               <div>
-                <label className="block text-sm font-semibold text-gray-500 mb-2">
-                  Product ID
-                </label>
-                <input
-                  type="text"
-                  name="id"
-                  id="editModalProductId"
-                  className="w-full px-3 py-2 bg-gray-100 rounded-lg text-black"
-                  readOnly
-                  {...registerEditPro("_id")}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-500 mb-2">
+                <label className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-2 block">
                   Name
                 </label>
                 <input
                   {...registerEditPro("name")}
                   type="text"
-                  name="name"
-                  className="w-full px-3 py-2 bg-gray-100 border-2 border-transparent rounded-lg text-black"
-                />
-                {err.name && (
-                  <p className="text-red-500 text-sm">🚨 {err.name.message}</p>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-500 mb-2">
-                  Price ($)
-                </label>
-                <input
-                  {...registerEditPro("price")}
-                  type="number"
-                  className="w-full px-3 py-2 bg-gray-100 border-2 border-transparent rounded-lg text-black"
+                  className="w-full px-0 py-3 bg-transparent border-b outline-none text-sm"
+                  style={{ borderBottomColor: "var(--color-border)" }}
                 />
               </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <label className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-2 block">
+                    Price ($)
+                  </label>
+                  <input
+                    {...registerEditPro("price")}
+                    type="number"
+                    step="0.01"
+                    className="w-full px-0 py-3 bg-transparent border-b outline-none text-sm"
+                    style={{ borderBottomColor: "var(--color-border)" }}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-2 block">
+                    Category
+                  </label>
+                  <select
+                    {...registerEditPro("category_id")}
+                    className="w-full px-0 py-3 bg-transparent border-b outline-none text-sm cursor-pointer"
+                    style={{ borderBottomColor: "var(--color-border)" }}
+                  >
+                    <option value="">Select Category</option>
+                    {allCategory.map((cat, i) => (
+                      <option key={i} value={cat.name}>
+                        {cat.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
               <div>
-                <label className="block text-sm font-semibold text-gray-500 mb-2">
-                  Image URL
+                <label className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-2 block">
+                  New Image (Optional)
                 </label>
                 <input
                   {...registerEditPro("image")}
                   type="file"
-                  className="w-full px-3 py-2 bg-gray-100 border-2 border-transparent rounded-lg text-black"
+                  className="w-full text-[10px] file:mr-4 file:py-2 file:px-4 file:border-0 file:text-[10px] file:font-semibold file:bg-black file:text-white"
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-gray-500 mb-2">
-                  Category
-                </label>
-                <select
-                  name="category"
-                  className="w-full px-3 py-2 bg-gray-100 border-2 border-transparent rounded-lg text-black"
-                  {...registerEditPro("category_id")}
+              <div className="flex gap-4 pt-4">
+                <button
+                  type="button"
+                  onClick={closeEditModel}
+                  className="flex-1 py-4 text-[11px] font-bold tracking-widest uppercase border border-gray-200 hover:bg-gray-50 transition-all"
                 >
-                  <option value="">All</option>
-                  {allCategory.map((catg, index) => (
-                    <option key={index} value={catg.name}>
-                      {catg.name}
-                    </option>
-                  ))}
-                </select>
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-4 text-[11px] font-bold tracking-widest uppercase bg-black text-white hover:bg-gray-800 transition-all"
+                >
+                  Save Changes
+                </button>
               </div>
-            </div>
-
-            <div className="flex justify-end space-x-3 mt-6">
-              <button
-                onClick={closeEditModel}
-                id="closeModal"
-                className="px-4 py-2 cursor-pointer border-2 border-black rounded-md text-gray-500 hover:text-black transition-colors"
-              >
-                Cancel
-              </button>
-
-              <button
-                type="submit"
-                className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-text-gray-500 transition-colors font-medium"
-              >
-                Update
-              </button>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 }

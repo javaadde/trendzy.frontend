@@ -7,38 +7,30 @@ import * as yup from "yup";
 import useCart from "../../hooks/useCart";
 
 function States() {
-  // form (address) schema
   const schema = yup.object().shape({});
-
   const { register, handleSubmit } = useForm({
     resolver: yupResolver(schema),
   });
 
-  // ==================================
+  const { total } = useCart();
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-   const {total} = useCart()
-   
-   useEffect(()=>{
-    console.log(total);
-
-   },[total])
+  const shippingCost = 5.99;
+  const finalTotal = total + shippingCost;
 
   function proceedToCheckout() {
-    
-    const popup = document.getElementById("paymentDiv");
-    popup.classList.remove("hidden");
+    setShowCheckout(true);
   }
 
-  function cancelPayment(){
-     const popup = document.getElementById("paymentDiv");
-    popup.classList.add("hidden");
+  function cancelPayment() {
+    setShowCheckout(false);
   }
 
   function proceedToPay(data) {
-    const popup = document.getElementById("paymentDiv");
-    popup.classList.add("hidden");
-
-    placeOrder(total + 5.99, data);
+    setIsProcessing(true);
+    placeOrder(finalTotal, data);
   }
 
   async function placeOrder(subtotal, data) {
@@ -47,361 +39,549 @@ function States() {
       address: data,
     };
 
-    console.log(formData);
-
     try {
       axios
         .post("/order", formData)
         .then(async (res) => {
-          const data = res.data;
-          console.log(data.message);
-
-          Notify();
+          setIsProcessing(false);
+          setShowCheckout(false);
+          setShowSuccess(true);
         })
         .catch((err) => {
           console.log(err);
+          setIsProcessing(false);
         });
     } catch (err) {
       console.log(err);
+      setIsProcessing(false);
     }
-  }
-
-  function Notify() {
-    console.log("ok");
-
-    const modalOverlay = document.getElementById("modalOverlay");
-    const loadingState = document.getElementById("loadingState");
-    const successState = document.getElementById("successState");
-
-    // Show modal
-    modalOverlay.classList.remove("hidden");
-    modalOverlay.classList.add("flex");
-    loadingState.classList.remove("hidden");
-    successState.classList.add("hidden");
-
-    // After 1.5 seconds, switch to success state
-    setTimeout(() => {
-      loadingState.classList.add("hidden");
-      successState.classList.remove("hidden");
-    }, 1500);
   }
 
   return (
     <>
-      <div className="lg:col-span-1 w-full">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-5 mt-5 h-[85vh] flex flex-col gap-5 font-comfortaa">
-          <h2 className="text-xl font-semibold text-black mb-6">
-            Order Summary
-          </h2>
+      {/* Order Summary Card */}
+      <div
+        className="sticky top-24 p-8"
+        style={{
+          backgroundColor: "var(--color-secondary)",
+          border: "1px solid var(--color-border-light)",
+        }}
+      >
+        <h2
+          className="text-lg font-semibold tracking-wide mb-8"
+          style={{
+            fontFamily: "var(--font-display)",
+            color: "var(--color-primary)",
+          }}
+        >
+          Order Summary
+        </h2>
 
-          <div className="space-y-4 mb-6">
-            <div className="flex justify-between text-gray-800">
-              <span>Subtotal</span>
-              <span id="subtotal">${total}</span>
-            </div>
-            <div className="flex justify-between text-gray-800">
-              <span>Shipping</span>
-              <span id="shipping">$5.99</span>
-            </div>
-            <div className="flex justify-between text-gray-800">
-              <span>Tax</span>
-              <span id="tax">$0.00</span>
-            </div>
-            <div className="border-t border-gray-200 pt-4">
-              <div className="flex justify-between text-lg font-bold text-black">
-                <span>Total</span>
-                <h2>
-                  $ <span id="total">{total + 5.99}</span>
-                </h2>
-              </div>
-            </div>
+        {/* Summary Lines */}
+        <div className="space-y-4 mb-8">
+          <div className="flex justify-between">
+            <span
+              className="text-sm"
+              style={{
+                fontFamily: "var(--font-body)",
+                color: "var(--color-text-secondary)",
+              }}
+            >
+              Subtotal
+            </span>
+            <span
+              className="text-sm font-medium"
+              style={{
+                fontFamily: "var(--font-body)",
+                color: "var(--color-text-primary)",
+              }}
+            >
+              ${total.toFixed(2)}
+            </span>
           </div>
 
-          <button
-            onClick={proceedToCheckout}
-            id="checkoutBtn"
-            className="w-full px-6 py-4 cursor-pointer text-white bg-black rounded-xl hover:bg-white border-1 hover:text-black transition-colors font-semibold text-lg mb-4"
-          >
-            Proceed to Checkout
-          </button>
+          <div className="flex justify-between">
+            <span
+              className="text-sm"
+              style={{
+                fontFamily: "var(--font-body)",
+                color: "var(--color-text-secondary)",
+              }}
+            >
+              Shipping
+            </span>
+            <span
+              className="text-sm font-medium"
+              style={{
+                fontFamily: "var(--font-body)",
+                color: "var(--color-text-primary)",
+              }}
+            >
+              ${shippingCost.toFixed(2)}
+            </span>
+          </div>
 
-          <Link to="/products">
-            <button className="w-full px-6 py-3 bg-white cursor-pointer text-black border-1 border-black rounded-xl hover:bg-black hover:text-white transition-colors font-medium">
-              Continue Shopping
-            </button>
-          </Link>
+          <div className="flex justify-between">
+            <span
+              className="text-sm"
+              style={{
+                fontFamily: "var(--font-body)",
+                color: "var(--color-text-secondary)",
+              }}
+            >
+              Tax
+            </span>
+            <span
+              className="text-sm font-medium"
+              style={{
+                fontFamily: "var(--font-body)",
+                color: "var(--color-text-primary)",
+              }}
+            >
+              $0.00
+            </span>
+          </div>
+        </div>
+
+        {/* Total */}
+        <div
+          className="flex justify-between py-6 mb-8"
+          style={{ borderTop: "1px solid var(--color-border)" }}
+        >
+          <span
+            className="text-base font-semibold"
+            style={{
+              fontFamily: "var(--font-body)",
+              color: "var(--color-text-primary)",
+            }}
+          >
+            Total
+          </span>
+          <span
+            className="text-xl font-semibold"
+            style={{
+              fontFamily: "var(--font-display)",
+              color: "var(--color-primary)",
+            }}
+          >
+            ${finalTotal.toFixed(2)}
+          </span>
+        </div>
+
+        {/* Checkout Button */}
+        <button
+          onClick={proceedToCheckout}
+          className="w-full py-5 text-sm font-medium tracking-widest uppercase transition-all duration-300 mb-4"
+          style={{
+            fontFamily: "var(--font-body)",
+            backgroundColor: "var(--color-primary)",
+            color: "var(--color-text-inverse)",
+            border: "1px solid var(--color-primary)",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = "var(--gray-800)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "var(--color-primary)";
+          }}
+        >
+          Proceed to Checkout
+        </button>
+
+        {/* Continue Shopping */}
+        <Link to="/products">
+          <button
+            className="w-full py-4 text-sm font-medium tracking-wide transition-all duration-300"
+            style={{
+              fontFamily: "var(--font-body)",
+              backgroundColor: "transparent",
+              color: "var(--color-text-primary)",
+              border: "1px solid var(--color-border)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = "var(--color-primary)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "var(--color-border)";
+            }}
+          >
+            Continue Shopping
+          </button>
+        </Link>
+
+        {/* Security Note */}
+        <div className="flex items-center justify-center gap-2 mt-6">
+          <i
+            className="fa-solid fa-lock text-xs"
+            style={{ color: "var(--color-text-muted)" }}
+          ></i>
+          <span
+            className="text-xs"
+            style={{
+              fontFamily: "var(--font-body)",
+              color: "var(--color-text-muted)",
+            }}
+          >
+            Secure checkout
+          </span>
         </div>
       </div>
 
+      {/* Checkout Modal */}
+      {showCheckout && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={cancelPayment}
+          />
 
-      {/* <!-- first modal  for delivery details--> */}
-      <section
-        className="hidden absolute left-auto lg:left-[10%] xl:left-[20%] top-0  items-center justify-center p-9 font-comfortaa"
-        id="paymentDiv"
-      >
-        {/* <!-- Delivery Form --> */}
-        <div className="lg:col-span-2">
-          <button 
-          onClick={cancelPayment}
-          className="absolute cursor-pointer text-2xl right-12 top-12 w-10 h-10 rounded-full bg-black text-white">
-            x
-          </button>
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-xl font-semibold text-black mb-6">
+          {/* Modal Content */}
+          <div
+            className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto p-8 lg:p-10 animate-scale-in"
+            style={{ backgroundColor: "var(--color-secondary)" }}
+          >
+            {/* Close Button */}
+            <button
+              onClick={cancelPayment}
+              className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center transition-colors duration-300"
+              style={{ color: "var(--color-text-muted)" }}
+            >
+              <i className="fa-solid fa-xmark text-xl"></i>
+            </button>
+
+            {/* Header */}
+            <h2
+              className="text-2xl font-semibold tracking-tight mb-8"
+              style={{
+                fontFamily: "var(--font-display)",
+                color: "var(--color-primary)",
+              }}
+            >
               Shipping Information
             </h2>
 
-            <form id="deliveryForm" className="space-y-6">
-              {/* <!-- Name & Phone Row --> */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Form */}
+            <form onSubmit={handleSubmit(proceedToPay)} className="space-y-6">
+              {/* Name & Phone */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-dark-gray mb-2">
+                  <label
+                    className="block text-xs font-medium tracking-wider uppercase mb-3"
+                    style={{
+                      fontFamily: "var(--font-body)",
+                      color: "var(--color-text-secondary)",
+                    }}
+                  >
                     Full Name
                   </label>
                   <input
                     type="text"
-                    placeholder="Full name"
-                    className="w-full px-4 py-3 bg-soft-gray border-2 border-gray-200 rounded-lg text-black focus:outline-none focus:border-black focus:bg-white transition-all"
+                    placeholder="John Doe"
+                    className="w-full px-0 py-3 text-base outline-none"
+                    style={{
+                      fontFamily: "var(--font-body)",
+                      backgroundColor: "transparent",
+                      borderBottom: "1px solid var(--color-border)",
+                    }}
                     required
                     {...register("fullName")}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-dark-gray mb-2">
+                  <label
+                    className="block text-xs font-medium tracking-wider uppercase mb-3"
+                    style={{
+                      fontFamily: "var(--font-body)",
+                      color: "var(--color-text-secondary)",
+                    }}
+                  >
                     Phone Number
                   </label>
                   <input
                     type="tel"
-                    placeholder="+1 (555) 123-4567"
-                    className="w-full px-4 py-3 bg-soft-gray border-2 border-gray-200 rounded-lg text-black focus:outline-none focus:border-black focus:bg-white transition-all"
+                    placeholder="+91 98765 43210"
+                    className="w-full px-0 py-3 text-base outline-none"
+                    style={{
+                      fontFamily: "var(--font-body)",
+                      backgroundColor: "transparent",
+                      borderBottom: "1px solid var(--color-border)",
+                    }}
                     required
                     {...register("phoneNumber")}
                   />
                 </div>
               </div>
 
-              {/* <!-- Street Address --> */}
+              {/* Street Address */}
               <div>
-                <label className="block text-sm font-semibold text-dark-gray mb-2">
+                <label
+                  className="block text-xs font-medium tracking-wider uppercase mb-3"
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    color: "var(--color-text-secondary)",
+                  }}
+                >
                   Street Address
                 </label>
                 <input
                   type="text"
-                  name="streetAddress"
                   placeholder="123 Main Street"
-                  className="w-full px-4 py-3 bg-soft-gray border-2 border-gray-200 rounded-lg text-black focus:outline-none focus:border-black focus:bg-white transition-all"
+                  className="w-full px-0 py-3 text-base outline-none"
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    backgroundColor: "transparent",
+                    borderBottom: "1px solid var(--color-border)",
+                  }}
                   required
                   {...register("streetAddress")}
                 />
               </div>
 
-              {/* <!-- Apartment/Unit (Optional) --> */}
+              {/* Apartment */}
               <div>
-                <label className="block text-sm font-semibold text-dark-gray mb-2">
-                  Apartment, Suite, Unit (Optional)
+                <label
+                  className="block text-xs font-medium tracking-wider uppercase mb-3"
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    color: "var(--color-text-secondary)",
+                  }}
+                >
+                  Apartment, Suite (Optional)
                 </label>
                 <input
                   type="text"
-                  name="apartment"
-                  placeholder="Apt 4B, Suite 100, Unit 5, etc."
-                  className="w-full px-4 py-3 bg-soft-gray border-2 border-gray-200 rounded-lg text-black focus:outline-none focus:border-black focus:bg-white transition-all"
+                  placeholder="Apt 4B"
+                  className="w-full px-0 py-3 text-base outline-none"
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    backgroundColor: "transparent",
+                    borderBottom: "1px solid var(--color-border)",
+                  }}
                   {...register("apartment")}
                 />
               </div>
 
-              {/* <!-- City, State, ZIP Row --> */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* City, State, ZIP */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-dark-gray mb-2">
+                  <label
+                    className="block text-xs font-medium tracking-wider uppercase mb-3"
+                    style={{
+                      fontFamily: "var(--font-body)",
+                      color: "var(--color-text-secondary)",
+                    }}
+                  >
                     City
                   </label>
                   <input
                     type="text"
-                    name="city"
                     placeholder="Mumbai"
-                    className="w-full px-4 py-3 bg-soft-gray border-2 border-gray-200 rounded-lg text-black focus:outline-none focus:border-black focus:bg-white transition-all"
+                    className="w-full px-0 py-3 text-base outline-none"
+                    style={{
+                      fontFamily: "var(--font-body)",
+                      backgroundColor: "transparent",
+                      borderBottom: "1px solid var(--color-border)",
+                    }}
                     required
                     {...register("city")}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-dark-gray mb-2">
+                  <label
+                    className="block text-xs font-medium tracking-wider uppercase mb-3"
+                    style={{
+                      fontFamily: "var(--font-body)",
+                      color: "var(--color-text-secondary)",
+                    }}
+                  >
                     State
                   </label>
                   <select
-                    name="state"
-                    className="w-full px-4 py-3 bg-soft-gray border-2 border-gray-200 rounded-lg text-black focus:outline-none focus:border-black focus:bg-white transition-all"
+                    className="w-full px-0 py-3 text-base outline-none cursor-pointer"
+                    style={{
+                      fontFamily: "var(--font-body)",
+                      backgroundColor: "transparent",
+                      borderBottom: "1px solid var(--color-border)",
+                    }}
                     required
                     {...register("state")}
                   >
-                    <option value="">Select State</option>
-                    <option value="NY">Kerala</option>
-                    <option value="CA">Mumbai</option>
-                    <option value="TX">Panjab</option>
-                    <option value="FL">Goa</option>
-                    <option value="IL">Delhi</option>
+                    <option value="">Select</option>
+                    <option value="Kerala">Kerala</option>
+                    <option value="Maharashtra">Maharashtra</option>
+                    <option value="Punjab">Punjab</option>
+                    <option value="Goa">Goa</option>
+                    <option value="Delhi">Delhi</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-dark-gray mb-2">
-                    Pin Code
+                  <label
+                    className="block text-xs font-medium tracking-wider uppercase mb-3"
+                    style={{
+                      fontFamily: "var(--font-body)",
+                      color: "var(--color-text-secondary)",
+                    }}
+                  >
+                    PIN Code
                   </label>
                   <input
                     type="text"
-                    name="pinCode"
-                    placeholder="676122"
-                    className="w-full px-4 py-3 bg-soft-gray border-2 border-gray-200 rounded-lg text-black focus:outline-none focus:border-black focus:bg-white transition-all"
+                    placeholder="400001"
+                    className="w-full px-0 py-3 text-base outline-none"
+                    style={{
+                      fontFamily: "var(--font-body)",
+                      backgroundColor: "transparent",
+                      borderBottom: "1px solid var(--color-border)",
+                    }}
                     required
                     {...register("pinCode")}
                   />
                 </div>
               </div>
 
-              {/* <!-- Country --> */}
+              {/* Delivery Instructions */}
               <div>
-                <label className="block text-sm font-semibold text-dark-gray mb-2">
-                  Country
-                </label>
-                <input
-                  readOnly
-                  value="india"
-                  placeholder="India"
-                  name="country"
-                  className="w-full px-4 py-3 bg-soft-gray border-2 border-gray-200 rounded-lg text-black focus:outline-none focus:border-black focus:bg-white transition-all"
-                  required
-                  {...register("country")}
-                />
-              </div>
-
-              {/* <!-- Delivery Instructions --> */}
-              <div>
-                <label className="block text-sm font-semibold text-dark-gray mb-2">
+                <label
+                  className="block text-xs font-medium tracking-wider uppercase mb-3"
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    color: "var(--color-text-secondary)",
+                  }}
+                >
                   Delivery Instructions (Optional)
                 </label>
                 <textarea
-                  name="deliveryInstructions"
-                  placeholder="Leave at front door, Ring doorbell, Call upon arrival, etc."
-                  rows="3"
-                  className="w-full px-4 py-3 bg-soft-gray border-2 border-gray-200 rounded-lg text-black focus:outline-none focus:border-black focus:bg-white transition-all resize-none"
+                  placeholder="Leave at front door..."
+                  rows="2"
+                  className="w-full px-0 py-3 text-base outline-none resize-none"
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    backgroundColor: "transparent",
+                    borderBottom: "1px solid var(--color-border)",
+                  }}
                   {...register("instructions")}
-                ></textarea>
+                />
               </div>
 
-              {/* <!--  Payment --> */}
-              <div className="lg:col-span-1">
-                <div className="bg-white rounded-xl shadow-sm  border-gray-200 p-6 sticky top-6">
-                  <h2 className="text-xl font-semibold text-black mb-6">
-                    Payment
-                  </h2>
+              {/* Order Total */}
+              <div
+                className="flex justify-between py-6"
+                style={{ borderTop: "1px solid var(--color-border)" }}
+              >
+                <span
+                  className="text-base font-semibold"
+                  style={{ fontFamily: "var(--font-body)" }}
+                >
+                  Order Total
+                </span>
+                <span
+                  className="text-xl font-semibold"
+                  style={{ fontFamily: "var(--font-display)" }}
+                >
+                  ${finalTotal.toFixed(2)}
+                </span>
+              </div>
 
-                  {/* <!-- Payment Button --> */}
-                  <button
-                    onClick={handleSubmit(proceedToPay)}
-                    className="cursor-pointer w-full px-6 py-4 bg-black text-white rounded-xl hover:bg-dark-gray transition-colors font-semibold text-lg mb-4 flex items-center justify-center space-x-2"
-                  >
-                    {" "}
-                    pay{" "}
-                  </button>
+              {/* Pay Button */}
+              <button
+                type="submit"
+                disabled={isProcessing}
+                className="w-full py-5 text-sm font-medium tracking-widest uppercase transition-all duration-300"
+                style={{
+                  fontFamily: "var(--font-body)",
+                  backgroundColor: isProcessing
+                    ? "var(--gray-400)"
+                    : "var(--color-primary)",
+                  color: "var(--color-text-inverse)",
+                }}
+              >
+                {isProcessing ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <i className="fa-solid fa-spinner fa-spin"></i>
+                    Processing...
+                  </span>
+                ) : (
+                  "Place Order"
+                )}
+              </button>
 
-                  {/* <!-- Security Note --> */}
-                  <div className="text-xs text-center text-dark-gray">
-                    <div className="flex items-center justify-center space-x-1 mb-2">
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                        ></path>
-                      </svg>
-                      <span>Secure Payment</span>
-                    </div>
-                    <p>Your payment information is encrypted and secure</p>
-                  </div>
-                </div>
+              {/* Security Note */}
+              <div className="flex items-center justify-center gap-2">
+                <i
+                  className="fa-solid fa-lock text-xs"
+                  style={{ color: "var(--color-text-muted)" }}
+                ></i>
+                <span
+                  className="text-xs"
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    color: "var(--color-text-muted)",
+                  }}
+                >
+                  Your payment information is encrypted and secure
+                </span>
               </div>
             </form>
           </div>
         </div>
-      </section>
+      )}
 
+      {/* Success Modal */}
+      {showSuccess && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/50" />
 
-      <div
-        id="modalOverlay"
-        className="justify-center items-center fixed inset-0 hidden bg-black bg-opacity-50 modal-backdrop z-50"
-      >
-        {/* Modal Content  */}
-        <div
-          id="modalContent"
-          className="bg-white rounded-2xl p-8 max-w-sm w-full mx-4 text-center modal-enter"
-        >
-          {/* Loading State  */}
-          <div id="loadingState">
-            <div className="mb-6">
-              {/* Loading Circle  */}
-              <div className="w-20 h-20 border-4 border-gray-200 border-t-black rounded-full loading-spinner mx-auto"></div>
+          {/* Modal Content */}
+          <div
+            className="relative w-full max-w-md p-10 text-center animate-scale-in"
+            style={{ backgroundColor: "var(--color-secondary)" }}
+          >
+            {/* Success Icon */}
+            <div
+              className="w-20 h-20 mx-auto mb-6 flex items-center justify-center"
+              style={{ backgroundColor: "#dcfce7" }}
+            >
+              <i className="fa-solid fa-check text-3xl" style={{ color: "#16a34a" }}></i>
             </div>
-            <h2 className="text-xl font-semibold text-gray-800 mb-2">
-              Processing Payment
-            </h2>
-            <p className="text-gray-600">
-              Please wait while we process your order...
-            </p>
-          </div>
 
-          {/* Success State --> */}
-          <div id="successState" className="hidden">
-            <div className="mb-6">
-              {/* Success Circle with Checkmark --> */}
-              <div className="w-20 h-20 mx-auto success-bounce">
-                <svg className="w-full h-full" viewBox="0 0 80 80" fill="none">
-                  {/* Circle --> */}
-                  <circle
-                    cx="40"
-                    cy="40"
-                    r="36"
-                    stroke="#10B981"
-                    strokeWidth="4"
-                    fill="#F0FDF4"
-                  />
-                  {/* Checkmark --> */}
-                  <path
-                    d="M25 40L35 50L55 30"
-                    stroke="#10B981"
-                    strokeWidth="4"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="checkmark-path"
-                  />
-                </svg>
-              </div>
-            </div>
-            <h2 className="text-xl font-semibold text-green-800 mb-2">
+            <h2
+              className="text-2xl font-semibold tracking-tight mb-4"
+              style={{
+                fontFamily: "var(--font-display)",
+                color: "var(--color-primary)",
+              }}
+            >
               Order Placed!
             </h2>
-            <p className="text-gray-600 mb-6">
+
+            <p
+              className="text-base leading-relaxed mb-8"
+              style={{
+                fontFamily: "var(--font-body)",
+                color: "var(--color-text-secondary)",
+              }}
+            >
               Your order has been successfully placed. You will receive a
               confirmation email shortly.
             </p>
 
-            {/* Close Button --> */}
-
             <Link to="/products">
               <button
-                id="closeBtn"
-                className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-300"
+                className="w-full py-5 text-sm font-medium tracking-widest uppercase transition-all duration-300"
+                style={{
+                  fontFamily: "var(--font-body)",
+                  backgroundColor: "var(--color-primary)",
+                  color: "var(--color-text-inverse)",
+                }}
               >
                 Continue Shopping
               </button>
             </Link>
           </div>
         </div>
-      </div>
+      )}
     </>
   );
 }

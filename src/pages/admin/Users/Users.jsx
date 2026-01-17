@@ -1,109 +1,178 @@
 import axios from "../../../axios";
 import { useEffect, useState } from "react";
 import showNotification from "../../../notification.mjs";
+import { Link } from "react-router-dom";
 
+function UsersAdmin() {
+    const [users, setUsers] = useState([]);
+    const [update, setUpdate] = useState(0);
+    const [isLoading, setIsLoading] = useState(true);
 
-function UsersAdmin(){
-
-    const [users,setUsers] = useState([])
-    const [update,setUpdate] = useState(0)
-
-    useEffect(()=>{
-        axios.get("/admin/users")
-        .then((res) => {
-            const data = res.data.allUsers;
-            console.log(data);
-            setUsers(data)
-        })
-        .catch((err) => console.log(err))
-    },[update])
-
+    useEffect(() => {
+        setIsLoading(true);
+        axios
+            .get("/admin/users")
+            .then((res) => {
+                setUsers(res.data.allUsers);
+                setIsLoading(false);
+            })
+            .catch((err) => {
+                console.log(err);
+                setIsLoading(false);
+            });
+    }, [update]);
 
     const enableUser = (id) => {
-        const reqValue = {id:id}
-      axios.put("/admin/user/enable",reqValue)
-      .then((res) => {
-        const data = res.data.message
-        showNotification(data);
-        setUpdate(update+1)
-      })
-      .catch((err) => console.log(err))
-    }
+        axios
+            .put("/admin/user/enable", { id })
+            .then((res) => {
+                showNotification(res.data.message);
+                setUpdate((prev) => prev + 1);
+            })
+            .catch((err) => console.log(err));
+    };
 
-    const disableUser = (id)=>{
-            const reqValue = {id:id}
-      axios.put("/admin/user/disable",reqValue)
-      .then((res) => {
-        const data = res.data.message;
-
-      showNotification(data);
-        setUpdate(update-1)
-       
-      })
-      .catch((err) => console.log(err))
-    }
+    const disableUser = (id) => {
+        axios
+            .put("/admin/user/disable", { id })
+            .then((res) => {
+                showNotification(res.data.message);
+                setUpdate((prev) => prev + 1);
+            })
+            .catch((err) => console.log(err));
+    };
 
     return (
-        <>
-        
-     
-    <header class="bg-white shadow-sm border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-6 py-4">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="w-12 h-12 bg-off-black rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-off-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5zm0 0h-5m-3-6V9a2 2 0 10-4 0v6m12 0v-3a3 3 0 00-6 0v3"></path>
-                        </svg>
+        <div className="min-h-screen" style={{ backgroundColor: "var(--gray-50)" }}>
+            {/* Header */}
+            <header
+                className="sticky top-0 z-40 py-4"
+                style={{
+                    backgroundColor: "rgba(255, 255, 255, 0.95)",
+                    backdropFilter: "blur(20px)",
+                    borderBottom: "1px solid var(--color-border-light)",
+                }}
+            >
+                <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
+                    <div className="flex items-center justify-between h-16">
+                        <div className="flex items-center gap-6">
+                            <Link
+                                to="/admin"
+                                className="flex items-center justify-center w-10 h-10 transition-opacity duration-300 hover:opacity-60"
+                                style={{ color: "var(--color-primary)" }}
+                            >
+                                <i className="fa-solid fa-arrow-left"></i>
+                            </Link>
+                            <h1
+                                className="text-xl font-semibold tracking-tight"
+                                style={{ fontFamily: "var(--font-display)" }}
+                            >
+                                User Directory
+                            </h1>
+                        </div>
                     </div>
-                    <h1 class="text-2xl font-bold text-off-black font-michroma">All Users</h1>
                 </div>
-                 <button onclick="logout()" class="text-dark-gray hover:text-off-black font-medium">Logout</button>
-            </div>
+            </header>
+
+            <main className="max-w-[1200px] mx-auto p-6 lg:p-12 animate-fade-in">
+                <div className="mb-12">
+                    <span
+                        className="text-[10px] font-semibold tracking-[0.3em] uppercase mb-3 block"
+                        style={{ color: "var(--color-text-muted)" }}
+                    >
+                        Access Control
+                    </span>
+                    <h2
+                        className="text-3xl lg:text-5xl font-semibold tracking-tight"
+                        style={{ fontFamily: "var(--font-display)" }}
+                    >
+                        Accounts <span className="italic">Database</span>
+                    </h2>
+                </div>
+
+                {isLoading ? (
+                    <div className="flex justify-center py-32">
+                        <div className="loader">
+                            <p className="loader-text">Syncing</p>
+                            <span className="load"></span>
+                        </div>
+                    </div>
+                ) : (
+                    <div
+                        className="overflow-hidden"
+                        style={{
+                            backgroundColor: "var(--color-secondary)",
+                            border: "1px solid var(--color-border-light)",
+                        }}
+                    >
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr
+                                    className="text-[10px] font-semibold tracking-widest uppercase text-gray-400"
+                                    style={{ borderBottom: "1px solid var(--color-border-light)" }}
+                                >
+                                    <th className="px-10 py-6">Unique ID</th>
+                                    <th className="px-6 py-6">Credentials / Email</th>
+                                    <th className="px-6 py-6 text-center">Status</th>
+                                    <th className="px-10 py-6 text-right">Operations</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-50">
+                                {users.map((user, i) => (
+                                    <tr key={i} className="hover:bg-gray-50/50 transition-colors">
+                                        <td className="px-10 py-6">
+                                            <code className="text-[11px] bg-gray-100 px-2 py-1 text-gray-600">
+                                                {user._id}
+                                            </code>
+                                        </td>
+                                        <td className="px-6 py-6">
+                                            <p className="text-sm font-medium tracking-wide">{user.email}</p>
+                                        </td>
+                                        <td className="px-6 py-6 text-center">
+                                            <span
+                                                className={`text-[10px] font-bold tracking-widest uppercase px-3 py-1 ${user.active
+                                                        ? "bg-green-100 text-green-700"
+                                                        : "bg-red-100 text-red-700"
+                                                    }`}
+                                            >
+                                                {user.active ? "Enabled" : "Disabled"}
+                                            </span>
+                                        </td>
+                                        <td className="px-10 py-6 text-right space-x-3">
+                                            {user.active ? (
+                                                <button
+                                                    onClick={() => disableUser(user._id)}
+                                                    className="px-6 py-2 border border-black text-[10px] font-bold tracking-widest uppercase hover:bg-black hover:text-white transition-all"
+                                                >
+                                                    Revoke Access
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    onClick={() => enableUser(user._id)}
+                                                    className="px-6 py-2 bg-black text-white text-[10px] font-bold tracking-widest uppercase hover:bg-gray-800 transition-all"
+                                                >
+                                                    Grant Access
+                                                </button>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+
+                {/* Info Box */}
+                <div className="mt-12 p-8 border border-gray-100 italic text-[11px] leading-relaxed text-gray-400 max-w-2xl">
+                    <p>
+                        Note: Managing user access requires high-level administrative
+                        privileges. Changes to account status are immediate and will affect
+                        the user's ability to initialize sessions and execute transactions.
+                    </p>
+                </div>
+            </main>
         </div>
-    </header>
-
-    <div class="w-full mt-[5%] py-8 flex justify-center font-comfortaa">
-
-                
-            <div class="overflow-x-auto w-[90%] rounded-xl shadow-xl border-[1px] border-gray-200">
-                <table class="w-full">
-                    <thead class="bg-soft-gray">
-                        <tr>
-                            <th class="px-6 py-4 text-center text-sm font-bold text-dark-gray">User ID</th>
-                            <th class="px-6 py-4 text-center text-sm font-bold text-dark-gray">Email</th>
-                            <th class="px-6 py-4 text-center text-sm font-bold text-dark-gray">Active</th>
-                            <th class="px-6 py-4 text-center text-sm font-bold text-dark-gray">Action</th>
-
-                        </tr>
-                    </thead>
-
-                    
-                 { users.map((user,i)=> { 
-
-                    return(
-                    <tbody id="userductsTable" class="h-28 bg-[#F9F9F9] transition-all px-5 ease-in-out duration-300 border-t-[1px] border-gray-400 z-0">
-
-                        <td class="text-center rounded-bl-xl" >{user._id}</td>  
-                        <td class="text-center">{user.email }</td>     
-                        <td class="text-center">{ user.active ? "yes" : "no" }</td>     
-                        <td class="flex flex-col justify-center py-3 px-5 gap-3 mt-2">
-                            <button onClick={()=> {disableUser(user._id)}} className="py-1 px-2 bg-red-300   rounded cursor-pointer hover:scale-110 transition-all duration-200 text-sm">Disable</button>
-                            <button onClick={() => {enableUser(user._id)}} className="py-1 px-2 bg-green-200 rounded cursor-pointer hover:scale-110 transition-all duration-200 text-sm">Enable</button>
-                        </td>     
-
-                    </tbody>
-                    )
-                  }) }
-
-                </table>
-            </div>
-
-
-    </div>
-    
-        </>
-    )
+    );
 }
 
-export default UsersAdmin
+export default UsersAdmin;
