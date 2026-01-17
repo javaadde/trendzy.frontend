@@ -1,70 +1,119 @@
+function Hero() {
+  return (
+    <>
+      <section className="relative min-h-screen flex items-center overflow-hidden">
+        {/* Background Image with Parallax-like effect */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2070&auto=format&fit=crop"
+            alt="High Fashion Background"
+            className="w-full h-full object-cover scale-105"
+          />
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(to right, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, transparent 100%)",
+            }}
+          />
+        </div>
 
-function Hero(){
+        <div className="container-premium relative z-10 pt-20">
+          <div className="max-w-3xl">
+            <span
+              className="inline-block text-xs font-semibold tracking-[0.3em] uppercase mb-6 animate-fade-in"
+              style={{
+                fontFamily: "var(--font-body)",
+                color: "rgba(255,255,255,0.7)",
+              }}
+            >
+              Autumn / Winter 2025
+            </span>
 
+            <h1
+              className="text-5xl lg:text-8xl xl:text-9xl font-semibold tracking-tighter leading-[0.9] mb-8 animate-slide-in"
+              style={{
+                fontFamily: "var(--font-display)",
+                color: "var(--color-secondary)",
+              }}
+            >
+              The Art of <br />
+              <span className="italic">Expression</span>
+            </h1>
 
-    return(<>
-    
+            <p
+              className="text-lg lg:text-xl max-w-xl leading-relaxed mb-12 animate-fade-in"
+              style={{
+                fontFamily: "var(--font-body)",
+                color: "rgba(255,255,255,0.8)",
+                animationDelay: "0.2s",
+              }}
+            >
+              Experience a collection where minimalism meets maximal impact.
+              Our curated pieces are designed for those who speak through style.
+            </p>
 
-      {/* <!-- Hero Section --> */}
-      <section className="relative bg-gray-200 py-8 lg:py-13 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-center">
-            {/* <!-- Model Image - Front and Center --> */}
+            <div
+              className="flex flex-col sm:flex-row gap-6 animate-fade-in"
+              style={{ animationDelay: "0.4s" }}
+            >
+              <a
+                href="/products"
+                className="group inline-flex items-center justify-center gap-3 px-10 py-5 text-sm font-medium tracking-widest uppercase transition-all duration-300"
+                style={{
+                  fontFamily: "var(--font-body)",
+                  backgroundColor: "var(--color-secondary)",
+                  color: "var(--color-primary)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "var(--gray-200)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "var(--color-secondary)";
+                }}
+              >
+                <span>Shop Collection</span>
+                <i className="fa-solid fa-arrow-right text-xs transition-transform duration-300 group-hover:translate-x-1"></i>
+              </a>
 
-            {/* <!-- big sreen --> */}
-            <div className="order-1 lg:order-1 justify-center lg:flex hidden">
-              <img
-                src="https://image.hm.com/assets/hm/de/74/de74869d8c461f1455bb800621bf4a38be9d8030.jpg?imwidth=1260"
-                alt="Fashion Model - Monochrome Style"
-                className="w-80 h-96 lg:w-76 lg:h-[100%] object-cover rounded-2xl shadow-2xl hover:scale-102 transition-all ease-in"
-              />
-            </div>
-
-            {/* <!-- small screen --> */}
-            <div className="order-1 lg:order-1 lg:hidden flex">
-              <img
-                src="https://shop.mango.com/cms-assets/v3/assets/blt351b9b24ac05a648/bltdc40d5eb2bc08aff/68b16ff8c5c65564baa420f2/LANDING-BEST_SELLERS.jpg?imdensity=1&im=RegionOfInterestCrop,width=1920,height=823,regionOfInterest=(2332.5,1000)"
-                alt="Fashion Model - Monochrome Style"
-                className="w-[100%] object-cover rounded-2xl shadow-2xl"
-              />
-            </div>
-
-            {/* <!-- Store Description --> */}
-            <div className="order-2 lg:order-2 space-y-8 px-4">
-              <div className="space-y-4">
-                <h2 className="text-3xl lg:text-5xl font-michroma font-bold text-black leading-tight">
-                  TIMELESS
-                  <span className="block bg-gradient-to-r from-gray-700 to-black bg-clip-text text-transparent">
-                    ELEGANCE
-                  </span>
-                </h2>
-                <div className="w-24 h-1 bg-black"></div>
-              </div>
-
-              <div className="space-y-6">
-                <p className="text-xl text-gray-700 leading-relaxed font-light font-comfortaa">
-                  Discover the perfect balance of sophistication and comfort.
-                  Our curated collection features premium fabrics, impeccable
-                  tailoring, and designs that transcend seasons.
-                </p>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-4 font-michroma">
-                <button className="bg-black text-white px-8 py-4 rounded-lg font-medium text-lg hover:bg-dark-gray transform hover:scale-105 transition-all duration-200 flex items-center justify-center space-x-2">
-                  <span>Explore Collection</span>
-                  {/* have to add a icon */}
-                </button>
-                <button className="border-2 border-black text-black px-8 py-4 rounded-lg font-medium text-lg hover:bg-black hover:text-white transition-all duration-200">
-                  View Lookbook
-                </button>
-              </div>
+              <button
+                className="group inline-flex items-center justify-center gap-3 px-10 py-5 text-sm font-medium tracking-widest uppercase transition-all duration-300 border"
+                style={{
+                  fontFamily: "var(--font-body)",
+                  borderColor: "rgba(255,255,255,0.3)",
+                  color: "var(--color-secondary)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = "var(--color-secondary)";
+                  e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.1)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.3)";
+                  e.currentTarget.style.backgroundColor = "transparent";
+                }}
+              >
+                <span>View Lookbook</span>
+              </button>
             </div>
           </div>
         </div>
+
+        {/* Floating Scroll Indicator */}
+        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4">
+          <span
+            className="text-[10px] tracking-[0.3em] uppercase"
+            style={{
+              fontFamily: "var(--font-body)",
+              color: "rgba(255,255,255,0.5)",
+            }}
+          >
+            Scroll
+          </span>
+          <div className="w-px h-12 bg-gradient-to-b from-white/50 to-transparent" />
+        </div>
       </section>
-
-
-    </>)
+    </>
+  );
 }
 
-export default Hero
+export default Hero;

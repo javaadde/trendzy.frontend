@@ -8,101 +8,147 @@ function SignInAdmin() {
   const navigate = useNavigate();
 
   const schema = yup.object().shape({
-    username: yup.string().required("please enter the username"),
-    password: yup.string().required("please enter the password").min(6,"password is weak")
+    username: yup.string().required("Username is required"),
+    password: yup
+      .string()
+      .required("Password is required")
+      .min(6, "Security requirement: 6+ characters"),
   });
 
   const {
     register,
     handleSubmit,
-    formState: {errors:errors},
+    formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
   });
 
   const formSubmit = async (data) => {
-    console.log(data);
-
     axios
-      .post("/admin/signIn", data, { withCredentials: true })
+      .post("/admin/signin", data, { withCredentials: true })
       .then((res) => navigate("/admin"))
       .catch((err) => console.log(err));
   };
 
   return (
-    <div className="h-screen w-full flex items-center justify-center">
-      <div className="bg-white shadow-2xl rounded-2xl p-8 w-full max-w-md border border-gray-200">
-       
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-black mb-2 font-michroma">
-            Wellcome Admin
-          </h1>
-          <p className="text-gray-600 mt-6 font-michroma">
-            Please sign in to your account
-          </p>
+    <div
+      className="min-h-screen w-full flex flex-col items-center justify-center p-6"
+      style={{ backgroundColor: "var(--gray-50)" }}
+    >
+      <div className="w-full max-w-md animate-fade-in">
+        {/* Decorative Element */}
+        <div className="flex justify-center mb-12">
+          <div
+            className="w-16 h-16 bg-black flex items-center justify-center rotate-45 transform hover:rotate-180 transition-transform duration-1000"
+          >
+            <span
+              className="text-white text-2xl font-semibold -rotate-45"
+              style={{ fontFamily: "var(--font-display)" }}
+            >
+              T
+            </span>
+          </div>
         </div>
 
-        <form
-          onSubmit={handleSubmit(formSubmit)}
-          className="space-y-6 font-comfortaa"
+        <div
+          className="p-12 shadow-elegant relative overflow-hidden"
+          style={{
+            backgroundColor: "var(--color-secondary)",
+            border: "1px solid var(--color-border-light)",
+          }}
         >
-          <div>
-            <label className="block text-sm font-medium text-black mb-2">
-              Username
-            </label>
-            <input
-              type="text"
-              name="username"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all duration-200 bg-white text-black placeholder-gray-400"
-              placeholder="Enter your Username"
-             
-              {...register("username")}
-            />
-             {errors.username && (
-                    <p className="text-red-500 text-sm">
-                      🚨 {errors.username.message}
-                    </p>
-                  )}
+          {/* Subtle Background Text */}
+          <div className="absolute top-0 right-0 p-4 opacity-[0.03] select-none pointer-events-none">
+            <h2 className="text-8xl font-bold uppercase tracking-tighter">Admin</h2>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-black mb-2">
-              Password
-            </label>
-            <div className="relative">
-              <input
-                type="password"
-                name="password"
-                className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all duration-200 bg-white text-black placeholder-gray-400"
-                placeholder="Enter your password"
-                
-                {...register("password")}
-              />
-               {errors.password && (
-                    <p className="text-red-500 text-sm">
-                      🚨 {errors.password.message}
-                    </p>
-                  )}
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-black text-white py-3 px-4 rounded-lg font-medium hover:bg-dark-gray focus:ring-2 focus:ring-black focus:ring-offset-2 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
-          >
-            Sign In
-          </button>
-        </form>
-
-        <div className="mt-6 text-center font-comfortaa">
-          <p className="text-sm text-gray-600">
-            Don't have an account?
-            <a
-              href="/signUp"
-              className="text-black hover:underline font-bold ml-1"
+          <div className="relative z-10">
+            <h2
+              className="text-3xl lg:text-4xl font-semibold tracking-tight text-center mb-2"
+              style={{ fontFamily: "var(--font-display)" }}
             >
-              Sign up here
-            </a>
+              Console Access
+            </h2>
+            <p
+              className="text-[10px] font-semibold tracking-widest uppercase text-center text-gray-400 mb-12"
+              style={{ fontFamily: "var(--font-body)" }}
+            >
+              Trendzy Luxury Group Systems
+            </p>
+
+            <form onSubmit={handleSubmit(formSubmit)} className="space-y-8">
+              <div>
+                <label className="text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-3 block">
+                  Identifier
+                </label>
+                <input
+                  type="text"
+                  className="w-full px-0 py-4 bg-transparent border-b outline-none text-sm transition-all duration-300"
+                  style={{
+                    borderBottomColor: "var(--color-border)",
+                    fontFamily: "var(--font-body)",
+                  }}
+                  placeholder="Admin Username"
+                  {...register("username")}
+                  onFocus={(e) => {
+                    e.target.style.borderBottomColor = "var(--color-primary)";
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderBottomColor = "var(--color-border)";
+                  }}
+                />
+                {errors.username && (
+                  <p className="text-[10px] text-red-500 mt-2 uppercase tracking-wider">
+                    {errors.username.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-3 block">
+                  Security Code
+                </label>
+                <input
+                  type="password"
+                  className="w-full px-0 py-4 bg-transparent border-b outline-none text-sm transition-all duration-300"
+                  style={{
+                    borderBottomColor: "var(--color-border)",
+                    fontFamily: "var(--font-body)",
+                  }}
+                  placeholder="••••••••"
+                  {...register("password")}
+                  onFocus={(e) => {
+                    e.target.style.borderBottomColor = "var(--color-primary)";
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderBottomColor = "var(--color-border)";
+                  }}
+                />
+                {errors.password && (
+                  <p className="text-[10px] text-red-500 mt-2 uppercase tracking-wider">
+                    {errors.password.message}
+                  </p>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-5 bg-black text-white text-[11px] font-bold tracking-widest uppercase transition-all duration-500 hover:tracking-[0.2em] transform active:scale-95 mt-8"
+                style={{ fontFamily: "var(--font-body)" }}
+              >
+                Authenticate
+              </button>
+            </form>
+          </div>
+        </div>
+
+        {/* Brand Footer */}
+        <div className="mt-12 text-center">
+          <p
+            className="text-[10px] font-medium tracking-[0.3em] uppercase text-gray-400"
+            style={{ fontFamily: "var(--font-body)" }}
+          >
+            © 2025 Trendzy Operational Systems
           </p>
         </div>
       </div>

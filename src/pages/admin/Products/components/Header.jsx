@@ -1,27 +1,70 @@
-function Header(){
+import { useNavigate, Link } from "react-router-dom";
+import axios from "../../../../axios";
 
+function Header() {
+    const navigate = useNavigate();
 
-    return(
+    const logOut = () => {
+        if (confirm("Are you sure you want to log out?")) {
+            axios
+                .delete("/details/logout")
+                .then(() => {
+                    navigate("/admin/login");
+                })
+                .catch((err) => console.log(err));
+        }
+    };
+
+    return (
         <>
-         <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-            <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-off-black rounded-lg flex items-center justify-center">
-                        <svg className="w-5 h-5 text-off-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1"></path>
-                        </svg>
+            <header
+                className="sticky top-0 z-50 py-4"
+                style={{
+                    backgroundColor: "rgba(255, 255, 255, 0.95)",
+                    backdropFilter: "blur(20px)",
+                    borderBottom: "1px solid var(--color-border-light)",
+                }}
+            >
+                <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
+                    <div className="flex items-center justify-between h-16">
+                        <div className="flex items-center gap-6">
+                            <Link
+                                to="/admin"
+                                className="flex items-center justify-center w-10 h-10 transition-opacity duration-300 hover:opacity-60"
+                                style={{ color: "var(--color-text-primary)" }}
+                            >
+                                <i className="fa-solid fa-arrow-left"></i>
+                            </Link>
+                            <div>
+                                <h1
+                                    className="text-xl font-semibold tracking-tight"
+                                    style={{
+                                        fontFamily: "var(--font-display)",
+                                        color: "var(--color-primary)",
+                                    }}
+                                >
+                                    Product Catalog
+                                </h1>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-6">
+                            <button
+                                onClick={logOut}
+                                className="text-sm font-medium tracking-widest uppercase transition-colors duration-300 hover:text-red-600"
+                                style={{
+                                    fontFamily: "var(--font-body)",
+                                    color: "var(--color-text-muted)",
+                                }}
+                            >
+                                Logout
+                            </button>
+                        </div>
                     </div>
-                    <h1 className="text-2xl font-bold text-off-black font-michroma">Products</h1>
                 </div>
-         <button  className="text-dark-gray hover:text-off-black font-medium">Logout</button> 
-
-            </div>
-        </div>
-    </header>
-
+            </header>
         </>
-    )
+    );
 }
 
-export default Header
+export default Header;

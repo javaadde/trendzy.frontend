@@ -1,111 +1,185 @@
-import { Link } from "react-router-dom"
+import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 
+function Header() {
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isNavOpen, setIsNavOpen] = useState(false);
 
-    const openNav = ()=>  {
-        document.getElementById("navbar").classList.remove("translate-x-full")
-    }
-    
-    const closeNav = () => {
-        document.getElementById("navbar").classList.add("translate-x-full")
-    }
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
-    
-function Header(){
+  const openNav = () => setIsNavOpen(true);
+  const closeNav = () => setIsNavOpen(false);
 
-    return(<>
-
-         <header className="bg-white shadow-lg border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* <!-- Logo --> */}
-            <div className="flex-shrink-0">
-              <h1 className="text-2xl font-michroma font-bold text-black">
-                JD
+  return (
+    <>
+      {/* Premium Header */}
+      <header
+        className={`sticky top-0 z-50 transition-all duration-500 ${isScrolled
+            ? "bg-white/95 backdrop-blur-xl shadow-sm"
+            : "bg-white"
+          }`}
+        style={{ borderBottom: "1px solid var(--color-border-light)" }}
+      >
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
+          <div className="flex justify-between items-center h-20">
+            {/* Logo */}
+            <Link to="/" className="flex-shrink-0 group">
+              <h1
+                className="text-2xl lg:text-3xl font-semibold tracking-widest"
+                style={{
+                  fontFamily: "var(--font-display)",
+                  color: "var(--color-primary)",
+                }}
+              >
+                TRENDZY
               </h1>
-            </div>
+            </Link>
 
-            {/* <!-- Navigation --> */}
-            <nav className="hidden md:flex space-x-8">
-              <a
-                href="/products"
-                className="text-black hover:text-gray-600 px-3 py-2 text-sm font-comfortaa font-medium transition-colors duration-200"
-              >
-                Products
-              </a>
-              <a
-                href="#category"
-                className="text-black hover:text-gray-600 px-3 py-2 text-sm font-comfortaa font-medium transition-colors duration-200"
-              >
-                Categories
-              </a>
-              <a
-                href="#"
-                className="text-black hover:text-gray-600 px-3 py-2 text-sm font-comfortaa font-medium transition-colors duration-200"
-              >
-                Customer Support
-              </a>
+            {/* Navigation - Desktop */}
+            <nav className="hidden md:flex items-center gap-10">
+              {[
+                { label: "Shop", href: "/products" },
+                { label: "Collections", href: "#category" },
+                { label: "Support", href: "#" },
+              ].map((item, i) => (
+                <a
+                  key={i}
+                  href={item.href}
+                  className="relative py-2 text-sm font-medium tracking-widest uppercase transition-colors duration-300 group"
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    color: "var(--color-text-primary)",
+                  }}
+                >
+                  {item.label}
+                  <span
+                    className="absolute bottom-0 left-0 w-0 h-px bg-black transition-all duration-300 group-hover:w-full"
+                  />
+                </a>
+              ))}
             </nav>
 
-            {/* <!-- Auth Buttons --> */}
-            <div className="flex items-center space-x-4 gap-5">
+            {/* Actions */}
+            <div className="flex items-center gap-6">
+              {/* Search Icon */}
+              <button
+                className="hidden md:flex items-center justify-center w-10 h-10 transition-colors duration-300 hover:opacity-60"
+                style={{ color: "var(--color-text-primary)" }}
+              >
+                <i className="fa-solid fa-magnifying-glass text-lg"></i>
+              </button>
+
+              {/* Cart */}
               <Link to="/cart">
-              <button className="font-bold text-2xl hover:text-gray-700 cursor-pointer">
-                <i className="fa-solid fa-cart-shopping"></i>
-              </button>
+                <button
+                  className="relative flex items-center justify-center w-10 h-10 transition-all duration-300 hover:opacity-60"
+                  style={{ color: "var(--color-text-primary)" }}
+                >
+                  <i className="fa-solid fa-bag-shopping text-xl"></i>
+                </button>
               </Link>
-              <Link to="/settings">
-              <button className="text-2xl hover:text-gray-700 cursor-pointer">
-                <i className="fa-solid fa-circle-user"></i>
-              </button>
+
+              {/* Account */}
+              <Link to="/settings" className="hidden md:block">
+                <button
+                  className="flex items-center justify-center w-10 h-10 transition-colors duration-300 hover:opacity-60"
+                  style={{ color: "var(--color-text-primary)" }}
+                >
+                  <i className="fa-regular fa-user text-xl"></i>
+                </button>
               </Link>
-            </div>
 
-            {/* <!-- Mobile menu button --> */}
-            <div className="md:hidden">
-              <button onClick={openNav} className="text-black text-2xl cursor-pointer hover:text-gray-600">
-                <i className="fa-solid fa-bars-staggered"></i>
+              {/* Mobile Menu Button */}
+              <button
+                onClick={openNav}
+                className="md:hidden flex items-center justify-center w-10 h-10"
+                style={{ color: "var(--color-text-primary)" }}
+              >
+                <i className="fa-solid fa-bars text-xl"></i>
               </button>
             </div>
-
           </div>
         </div>
       </header>
- 
-            {/* mobile navbar */}
 
-      <div id="navbar" className="h-full w-1/2 fixed bg-white z-99 translate-x-full transition-all ease-in top-0 right-0">
-        <div>
-          <button onClick={closeNav} className="text-black absolute left-3 top-3 px-3 py-2 border-1 hover:bg-black hover:text-white rounded cursor-pointer shadow-2xl">
-            <i className="fa-solid fa-xmark"></i>
+      {/* Mobile Navigation Overlay */}
+      <div
+        className={`fixed inset-0 bg-black/50 z-[100] transition-opacity duration-500 ${isNavOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          }`}
+        onClick={closeNav}
+      />
+
+      {/* Mobile Navigation Panel */}
+      <div
+        className={`fixed top-0 right-0 h-full w-[85%] max-w-[400px] bg-white z-[101] transition-transform duration-500 ease-out ${isNavOpen ? "translate-x-0" : "translate-x-full"
+          }`}
+        style={{ boxShadow: isNavOpen ? "var(--shadow-2xl)" : "none" }}
+      >
+        {/* Close Button */}
+        <div className="flex justify-between items-center p-6 border-b" style={{ borderColor: "var(--color-border-light)" }}>
+          <span
+            className="text-xl font-semibold tracking-widest"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            MENU
+          </span>
+          <button
+            onClick={closeNav}
+            className="flex items-center justify-center w-10 h-10 transition-colors duration-300"
+            style={{ color: "var(--color-text-primary)" }}
+          >
+            <i className="fa-solid fa-xmark text-2xl"></i>
           </button>
         </div>
 
-        <div className="w-full mt-20 flex items-center justify-center font-comfortaa">
-          <ul className="text-black w-full">
-            {/* <li className="p-2 cursor-pointer bg-white hover:bg-black hover:text-white hover:border-black text-center border-y py-3 w-full transition-[0.5s] ease-in">
-              <a href="/"></a>Home
-            </li>         */}
-            <li className="p-2 cursor-pointer bg-white hover:bg-black hover:text-white hover:border-black text-center border-y py-3 w-full transition-[0.5s] ease-in">
-              <Link to="/products">Products</Link>
-            </li>        
-            <li className="p-2 cursor-pointer bg-white hover:bg-black hover:text-white hover:border-black text-center border-y py-3 w-full transition-[0.5s] ease-in">
-              <a href="">Categories</a>
-            </li>        
-            <li className="p-2 cursor-pointer bg-white hover:bg-black hover:text-white hover:border-black text-center border-y py-3 w-full transition-[0.5s] ease-in">
-              <Link to="/orders">Orders</Link>
-            </li>        
-            <li className="p-2 cursor-pointer bg-white hover:bg-black hover:text-white hover:border-black text-center border-y py-3 w-full transition-[0.5s] ease-in">
-              <Link to="/cart">Cart</Link>
-            </li>        
-            <li className="p-2 cursor-pointer bg-white hover:bg-black hover:text-white hover:border-black text-center border-y py-3 w-full transition-[0.5s] ease-in">
-              <Link to="/settings">Settings</Link>
-            </li>        
-          </ul>
+        {/* Navigation Links */}
+        <nav className="py-8">
+          {[
+            { label: "Home", href: "/", icon: "fa-house" },
+            { label: "Shop", href: "/products", icon: "fa-bag-shopping" },
+            { label: "Collections", href: "/#category", icon: "fa-layer-group" },
+            { label: "Orders", href: "/orders", icon: "fa-box" },
+            { label: "Cart", href: "/cart", icon: "fa-cart-shopping" },
+            { label: "Account", href: "/settings", icon: "fa-user" },
+          ].map((item, index) => (
+            <Link
+              key={index}
+              to={item.href}
+              onClick={closeNav}
+              className="flex items-center gap-4 px-8 py-4 transition-all duration-300 hover:bg-gray-50"
+              style={{
+                fontFamily: "var(--font-body)",
+                color: "var(--color-text-primary)",
+              }}
+            >
+              <i className={`fa-solid ${item.icon} w-6 text-center opacity-60`}></i>
+              <span
+                className="text-base font-medium tracking-wide uppercase"
+              >
+                {item.label}
+              </span>
+            </Link>
+          ))}
+        </nav>
+
+        {/* Footer */}
+        <div className="absolute bottom-0 left-0 right-0 p-8 border-t" style={{ borderColor: "var(--color-border-light)" }}>
+          <p
+            className="text-xs tracking-wider uppercase text-center"
+            style={{ color: "var(--color-text-muted)" }}
+          >
+            © 2025 TRENDZY
+          </p>
         </div>
       </div>
-
-  
-    </>)
+    </>
+  );
 }
 
-export default Header
+export default Header;

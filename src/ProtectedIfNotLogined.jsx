@@ -1,39 +1,50 @@
 import React from 'react'
-import { useState,useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Navigate } from 'react-router-dom';
 import axios from './axios';
 import showNotification from './notification.mjs';
 
 
-export const ProtectedIfNotLogined = ({children}) => {
- 
-  const [isLogined, setIsLogined] = useState();
-  const [role, setRole] = useState();
-  const navigate = useNavigate()
+export const ProtectedIfNotLogined = ({ children }) => {
+  const [isLogined, setIsLogined] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  useEffect( () => {
+  useEffect(() => {
     async function check() {
-
-        try {
-          const res = await axios.get("/", { withCredentials: true });
-          setIsLogined(res.data.is);
-          setRole(res.data.role);
-        } catch (error) {
-          console.log(error);
-        }
+      try {
+        const res = await axios.get("/", { withCredentials: true });
+        setIsLogined(res.data.is);
+      } catch (error) {
+        console.error("Auth check failed:", error);
+        setIsLogined(false);
+      } finally {
+        setLoading(false);
+      }
     }
 
-    check()
+    check();
+  }, []);
 
-  },[])
+  useEffect(() => {
+    if (!loading && !isLogined) {
+      showNotification("you have to signUp first");
+    }
+  }, [loading, isLogined]);
 
-  if(!isLogined){
-    showNotification("you have to signUp first")
-    navigate("/signUp");
-    return
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="loader">
+          <p className="loader-text">loading</p>
+          <span className="load"></span>
+        </div>
+      </div>
+    );
   }
-  else{
-    return children
+
+  if (!isLogined) {
+    return <Navigate to="/signUp" replace />;
   }
 
-}
+  return children;
+};

@@ -2,7 +2,6 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  BrowserRouter,
 } from "react-router-dom";
 import axios from "./axios.jsx";
 
@@ -39,151 +38,151 @@ import UsersAdmin from "./pages/admin/Users/Users.jsx";
 import Category from "./pages/admin/Categories/Category.jsx";
 
 
-axios.defaults.withCredentials = true;
+
 
 function App() {
- 
+
 
   return (
     <>
 
-     
-        <Router>
-          <Routes>
-            {/* Home route */}
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <Home />
-                </ProtectedRoute>
-              }
-            />
 
-            {/* unkown user home route */}
-            <Route path="/unknown" element={<HomeNotLogined />} />
+      <Router>
+        <Routes>
+          {/* Home route */}
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
+            }
+          />
 
-            {/* Login route */}
-            <Route path="/login" element={
-              <ProtectedIfLogined>
-                <SignIn />
-              </ProtectedIfLogined>
-              } />
+          {/* unkown user home route */}
+          <Route path="/unknown" element={<HomeNotLogined />} />
 
-            {/* signup route */}
-            <Route path="/signUp" element={
-              <ProtectedIfLogined>
-                <SignUp />
-              </ProtectedIfLogined>
-              } />
+          {/* Login route */}
+          <Route path="/login" element={
+            <ProtectedIfLogined>
+              <SignIn />
+            </ProtectedIfLogined>
+          } />
 
-
-
-            {/* settings route */}
-            <Route path="/settings" element={<Setting />} />
-
-            {/* cart route */}
-            <Route path="/cart" element={
-              <ProtectedIfNotLogined>
-                <Cart />
-              </ProtectedIfNotLogined>
-              } />
+          {/* signup route */}
+          <Route path="/signUp" element={
+            <ProtectedIfLogined>
+              <SignUp />
+            </ProtectedIfLogined>
+          } />
 
 
-            {/* cart route */}
-            <Route path="/products" element={
-              <ProtectedIfNotLogined>
-                <Products/>
-              </ProtectedIfNotLogined>
-              } />
+
+          {/* settings route */}
+          <Route path="/settings" element={<Setting />} />
+
+          {/* cart route */}
+          <Route path="/cart" element={
+            <ProtectedIfNotLogined>
+              <Cart />
+            </ProtectedIfNotLogined>
+          } />
 
 
-            {/* ORDERS route */}
-            <Route path="/orders" element={
-              <ProtectedIfNotLogined>
-                <Orders />
-              </ProtectedIfNotLogined>
-              } />
+          {/* cart route */}
+          <Route path="/products" element={
+            <ProtectedIfNotLogined>
+              <Products />
+            </ProtectedIfNotLogined>
+          } />
 
-            {/* ORDERS route */}
-            <Route path="/order/details/:id" element={<OrderDetails />} />
 
-            {/* Eroor Pages */}
+          {/* ORDERS route */}
+          <Route path="/orders" element={
+            <ProtectedIfNotLogined>
+              <Orders />
+            </ProtectedIfNotLogined>
+          } />
 
-            {/* 404 route */}
-            <Route path="/404" element={<NotFoundPage />} />
+          {/* ORDERS route */}
+          <Route path="/order/details/:id" element={<OrderDetails />} />
 
-            {/* 401 route */}
-            <Route path="/401" element={<UnOtherizedPage />} />
+          {/* Eroor Pages */}
 
-            {/* ADMIN PAGES */}
+          {/* 404 route */}
+          <Route path="/404" element={<NotFoundPage />} />
 
-            {/* none protected */}
-            <Route path="/admin/login" element={<SignInAdmin />} />
+          {/* 401 route */}
+          <Route path="/401" element={<UnOtherizedPage />} />
 
-            {/* protected */}
-            {/* home admin route */}
+          {/* ADMIN PAGES */}
 
-            <Route
-              path="/admin"
-              element={
-                <ProtectedToAdmin>
-                  <AdminHome />
-                </ProtectedToAdmin>
-              }
-            />
+          {/* none protected */}
+          <Route path="/admin/login" element={<SignInAdmin />} />
 
-            <Route
-              path="/admin/products"
-              element={
-                <ProtectedToAdmin>
-                  <AdminProducts />
-                </ProtectedToAdmin>
-              }
-            />
+          {/* protected */}
+          {/* home admin route */}
 
-            <Route
-              path="/admin/orders"
-              element={
-                <ProtectedToAdmin>
-                  <AdminOrders />
-                </ProtectedToAdmin>
-              }
-            />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedToAdmin>
+                <AdminHome />
+              </ProtectedToAdmin>
+            }
+          />
 
-            <Route
-              path="/admin/orders/:id"
-              element={
-                <ProtectedToAdmin>
-                  <OrderDetailsForAdmin />
-                </ProtectedToAdmin>
-              }
-            />
+          <Route
+            path="/admin/products"
+            element={
+              <ProtectedToAdmin>
+                <AdminProducts />
+              </ProtectedToAdmin>
+            }
+          />
 
-            <Route
-              path="/admin/users"
-              element={
-                <ProtectedToAdmin>
-                  <UsersAdmin />
-                </ProtectedToAdmin>
-              }
-            />
+          <Route
+            path="/admin/orders"
+            element={
+              <ProtectedToAdmin>
+                <AdminOrders />
+              </ProtectedToAdmin>
+            }
+          />
 
-            <Route
-              path="/admin/categories"
-              element={
-                <ProtectedToAdmin>
-                  <Category />
-                </ProtectedToAdmin>
-              }
-            />
+          <Route
+            path="/admin/orders/:id"
+            element={
+              <ProtectedToAdmin>
+                <OrderDetailsForAdmin />
+              </ProtectedToAdmin>
+            }
+          />
 
-            <Route path="*" element={<NotFoundPage />} />
-            
-          </Routes>
-        </Router>
+          <Route
+            path="/admin/users"
+            element={
+              <ProtectedToAdmin>
+                <UsersAdmin />
+              </ProtectedToAdmin>
+            }
+          />
 
-      
+          <Route
+            path="/admin/categories"
+            element={
+              <ProtectedToAdmin>
+                <Category />
+              </ProtectedToAdmin>
+            }
+          />
+
+          <Route path="*" element={<NotFoundPage />} />
+
+        </Routes>
+      </Router>
+
+
     </>
   );
 }

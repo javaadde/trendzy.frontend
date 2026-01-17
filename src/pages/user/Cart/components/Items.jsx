@@ -1,78 +1,152 @@
 import useCart from "../../hooks/useCart";
 
 function Items() {
-
-  const {cartItems,increaseItemQty,decreaseItemQty,deleteCartItem} = useCart()
+  const { cartItems, increaseItemQty, decreaseItemQty, deleteCartItem } = useCart();
 
   return (
-    <>
-  
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between pb-4" style={{ borderBottom: "1px solid var(--color-border)" }}>
+        <span
+          className="text-xs font-medium tracking-widest uppercase"
+          style={{
+            fontFamily: "var(--font-body)",
+            color: "var(--color-text-muted)",
+          }}
+        >
+          {cartItems.length} {cartItems.length === 1 ? "Item" : "Items"}
+        </span>
+      </div>
+
+      {/* Cart Items */}
       {cartItems.map((item, index) => (
         <div
           key={index}
-          className="p-6 flex items-center  shadow-xl rounded-b-md font-comfortaa"
+          className="flex gap-6 py-6"
+          style={{ borderBottom: "1px solid var(--color-border-light)" }}
         >
-          <img
-            src={item.url}
-            alt="product image"
-            className="w-[25vh] h-45 rounded-lg object-cover bg-soft-gray"
-          />
-
-          <div className="flex-1 pl-12">
-            <h3 className="text-lg font-semibold text-black mb-1">
-              {item.name}
-            </h3>
-            <p className="text-dark-gray text-sm">{item.price}</p>
+          {/* Product Image */}
+          <div
+            className="relative w-28 h-36 lg:w-32 lg:h-40 flex-shrink-0 overflow-hidden"
+            style={{ backgroundColor: "var(--gray-100)" }}
+          >
+            <img
+              src={item.url}
+              alt={item.name}
+              className="w-full h-full object-cover"
+            />
           </div>
 
-          <div className="flex items-center gap-6">
-            {/* <!-- Quantity Controls --> */}
-            <div className="flex items-center space-x-2 bg-soft-gray rounded-lg">
-              <button
-                onClick={() => {
-                  decreaseItemQty(item.product_id);
+          {/* Product Details */}
+          <div className="flex-1 flex flex-col">
+            <div className="flex-1">
+              <h3
+                className="text-base font-medium tracking-wide mb-2"
+                style={{
+                  fontFamily: "var(--font-body)",
+                  color: "var(--color-text-primary)",
                 }}
-                className="p-2 cursor-pointer hover:bg-gray-200 rounded-lg transition-colors"
               >
-                <i className="fa-solid fa-square-minus"></i>
-              </button>
-
-              <span className="px-3 py-1 text-black font-medium min-w-[2rem] text-center">
-                {item.quantity}
-              </span>
-
-              <button
-                onClick={() => {
-                  increaseItemQty(item.product_id);
+                {item.name}
+              </h3>
+              <p
+                className="text-lg font-semibold"
+                style={{
+                  fontFamily: "var(--font-body)",
+                  color: "var(--color-text-primary)",
                 }}
-                className="p-2 cursor-pointer hover:bg-gray-200 rounded-lg transition-colors"
               >
-                <i className="fa-solid fa-square-plus"></i>
-              </button>
-            </div>
-
-            {/* <!-- Item Total --> */}
-            <div className="text-right min-w-[4rem]">
-              <p className="text-lg font-semibold text-black">
-                {item.price * item.quantity}
+                ${item.price}
               </p>
             </div>
 
-            {/* <!-- Remove Button --> */}
-            <button
-              onClick={() => {
-                deleteCartItem(item.product_id);
-              }}
-              className="p-2 cursor-pointer text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
-              title="delete cart item"
-            >
-              <i className="fa-solid fa-trash"></i>
-            </button>
+            {/* Actions Row */}
+            <div className="flex items-center justify-between mt-auto pt-4">
+              {/* Quantity Controls */}
+              <div
+                className="flex items-center"
+                style={{ border: "1px solid var(--color-border)" }}
+              >
+                <button
+                  onClick={() => decreaseItemQty(item.product_id)}
+                  className="w-10 h-10 flex items-center justify-center transition-colors duration-300"
+                  style={{
+                    color: "var(--color-text-secondary)",
+                    backgroundColor: "transparent",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "var(--gray-100)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "transparent";
+                  }}
+                >
+                  <i className="fa-solid fa-minus text-xs"></i>
+                </button>
+
+                <span
+                  className="w-12 text-center text-sm font-medium"
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    color: "var(--color-text-primary)",
+                    borderLeft: "1px solid var(--color-border)",
+                    borderRight: "1px solid var(--color-border)",
+                  }}
+                >
+                  {item.quantity}
+                </span>
+
+                <button
+                  onClick={() => increaseItemQty(item.product_id)}
+                  className="w-10 h-10 flex items-center justify-center transition-colors duration-300"
+                  style={{
+                    color: "var(--color-text-secondary)",
+                    backgroundColor: "transparent",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "var(--gray-100)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "transparent";
+                  }}
+                >
+                  <i className="fa-solid fa-plus text-xs"></i>
+                </button>
+              </div>
+
+              {/* Subtotal & Remove */}
+              <div className="flex items-center gap-6">
+                <span
+                  className="text-base font-semibold"
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    color: "var(--color-text-primary)",
+                  }}
+                >
+                  ${(item.price * item.quantity).toFixed(2)}
+                </span>
+
+                <button
+                  onClick={() => deleteCartItem(item.product_id)}
+                  className="text-sm transition-colors duration-300"
+                  style={{ color: "var(--color-text-muted)" }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = "#dc2626";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = "var(--color-text-muted)";
+                  }}
+                  title="Remove item"
+                >
+                  <i className="fa-regular fa-trash-can"></i>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       ))}
-   
-  </>);
+    </div>
+  );
 }
 
 export default Items;
