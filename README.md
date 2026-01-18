@@ -12,8 +12,7 @@ A modern, responsive e-commerce frontend application built with React, Vite, and
 
 </div>
 
-### Responsive View
-<img src="public/responsive.png" style="border-radius:12px;" alt="Mobile View" width="100%"/>
+
 
 
 ## 📋 Table of Contents
