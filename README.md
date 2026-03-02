@@ -1,5 +1,3 @@
-
-
 <h1 align="center" > E-Commerce Frontend React </h1>
 
 <div align="center">
@@ -12,8 +10,26 @@ A modern, responsive e-commerce frontend application built with React, Vite, and
 
 </div>
 
+## 📸 Screenshots
 
+### 💻 Desktop View
 
+![Desktop View](public/screenshots/desktop-screenshot.png)
+
+<div align="center">
+  <table border="0">
+    <tr>
+      <td width="50%" align="center">
+        <h4>📱 Mobile View</h4>
+        <img src="public/screenshots/mobile-screenshot.png" width="300" alt="Mobile View" />
+      </td>
+      <td width="50%" align="center">
+        <h4>📟 Tablet View</h4>
+        <img src="public/screenshots/tablet-screenshot.png" width="600" alt="Tablet View" />
+      </td>
+    </tr>
+  </table>
+</div>
 
 ## 📋 Table of Contents
 
@@ -31,6 +47,7 @@ A modern, responsive e-commerce frontend application built with React, Vite, and
 ## ✨ Features
 
 ### User Interface
+
 - 🛒 **Modern E-commerce Design** - Clean, elegant interface inspired by premium fashion brands
 - 📱 **Fully Responsive** - Seamless experience across mobile, tablet, and desktop devices
 - 🎨 **Hero Sections** - Eye-catching hero banners with "Timeless Elegance" branding
@@ -38,6 +55,7 @@ A modern, responsive e-commerce frontend application built with React, Vite, and
 - 🍔 **Mobile-First** - Hamburger menu for mobile devices with smooth interactions
 
 ### Technical Features
+
 - ⚡ **Lightning-Fast Performance** - Powered by Vite for instant hot module replacement
 - 📝 **Form Validation** - Robust form handling with React Hook Form and Yup schemas
 - 🔄 **Client-Side Routing** - Smooth navigation with React Router DOM
@@ -46,6 +64,7 @@ A modern, responsive e-commerce frontend application built with React, Vite, and
 - 🎨 **Tailwind CSS** - Utility-first styling for rapid UI development
 
 ### User Experience
+
 - 🔐 **Authentication** - Sign In and Sign Up functionality
 - 🛍️ **Product Collections** - Browse curated collections with "Explore Collection" feature
 - 📖 **Lookbook** - "View Lookbook" feature for style inspiration
@@ -175,12 +194,12 @@ The application follows a consistent design language:
 
 ## 📜 Available Scripts
 
-| Script | Description |
-|--------|-------------|
-| `npm run dev` | Start development server |
-| `npm run build` | Build for production |
+| Script            | Description              |
+| ----------------- | ------------------------ |
+| `npm run dev`     | Start development server |
+| `npm run build`   | Build for production     |
 | `npm run preview` | Preview production build |
-| `npm run lint` | Run ESLint |
+| `npm run lint`    | Run ESLint               |
 
 ## 🔑 Key Dependencies
 

@@ -109,7 +109,7 @@ function Hero() {
         <div
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
-          className="absolute left-1/2 bottom-[15%] md:bottom-0 -translate-x-1/2 w-full md:w-auto h-[55%] md:h-[95%] flex items-end justify-center pointer-events-auto z-10"
+          className="absolute left-1/2 md:left-[55%] lg:left-1/2 bottom-[15%] md:bottom-0 -translate-x-1/2 w-full md:w-auto h-[55%] md:h-[90%] lg:h-[95%] flex items-end justify-center pointer-events-auto z-10 transition-all duration-1000"
         >
           <motion.img
             initial={{ opacity: 0, y: 100, scale: 1.05 }}
@@ -117,11 +117,11 @@ function Hero() {
             transition={{ duration: 1.5, ease: [0.19, 1, 0.22, 1] }}
             src="/hero.png"
             alt="ilux model"
-            className="h-full w-auto object-contain object-bottom scale-[1.2] md:scale-[0.9] lg:scale-[1.1]"
+            className="h-full w-auto object-contain object-bottom scale-[1.2] md:scale-[0.85] lg:scale-[1.1]"
           />
 
-          {/* Product Callout (Desktop Only) */}
-          <div className="absolute left-[65%] top-[40%] z-30 hidden lg:block">
+          {/* Product Callout (Visible on Tablet & Desktop) */}
+          <div className="absolute left-[65%] top-[40%] z-30 hidden md:block">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -129,7 +129,7 @@ function Hero() {
               className="flex items-center"
             >
               <div className="relative flex items-center justify-center group">
-                <div className="w-3 h-3 bg-white border-2 border-black rounded-full z-10 transition-transform duration-500 group-hover:scale-150" />
+                <div className="w-2 md:w-3 h-2 md:h-3 bg-white border-2 border-black rounded-full z-10 transition-transform duration-500 group-hover:scale-150" />
                 <motion.div
                   animate={{ scale: [1, 3, 1], opacity: [0.5, 0, 0.5] }}
                   transition={{
@@ -137,23 +137,23 @@ function Hero() {
                     repeat: Infinity,
                     ease: "easeInOut",
                   }}
-                  className="absolute w-3 h-3 bg-black rounded-full"
+                  className="absolute w-2 md:w-3 h-2 md:h-3 bg-black rounded-full"
                 />
 
                 <motion.div
                   initial={{ opacity: 0, y: 5 }}
-                  animate={{ opacity: isHovered ? 1 : 0, y: isHovered ? 0 : 5 }}
+                  animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, ease: "easeOut" }}
-                  className="absolute -top-12 left-1/2 -translate-x-1/2 flex flex-col items-center"
+                  className="absolute -top-10 md: -top-12 left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none"
                 >
-                  <span className="text-[10px] text-black border border-black/40 px-3 py-1.5 tracking-[0.2em] uppercase whitespace-nowrap bg-white/80 backdrop-blur-sm">
+                  <span className="text-[8px] md:text-[10px] text-black border border-black/20 md:border-black/40 px-2 md:px-3 py-1 md:py-1.5 tracking-[0.2em] uppercase whitespace-nowrap bg-white/60 backdrop-blur-sm">
                     VIEW DETAILS
                   </span>
-                  <div className="w-[1px] h-4 bg-black/40 mt-1" />
+                  <div className="w-[1px] h-3 md:h-4 bg-black/20 md:bg-black/40 mt-1" />
                 </motion.div>
               </div>
 
-              <div className="opacity-100">
+              <div className="opacity-100 hidden lg:block">
                 <svg
                   width="400"
                   height="120"
@@ -194,39 +194,48 @@ function Hero() {
               borderRadius: "0",
             }}
           >
-            {/* Architectural Frame Accents (Desktop only for precision) */}
-            {/* <svg
+            {/* Architectural Frame Accents (Active on Tablet & Desktop) */}
+            <svg
               className="absolute inset-0 w-full h-full pointer-events-none overflow-visible hidden md:block"
               style={{ zIndex: 30 }}
             >
               <line
+                x1="-20"
+                y1="20"
+                x2="20"
+                y2="-20"
+                stroke="black"
+                strokeWidth="0.5"
+                strokeOpacity="0.4"
+              />
+              <line
                 x1="0"
-                y1="40"
-                x2="40"
+                y1="0"
+                x2="60"
                 y2="0"
                 stroke="black"
-                strokeWidth="1"
+                strokeWidth="0.5"
+                strokeOpacity="0.2"
+              />
+              <line
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="60"
+                stroke="black"
+                strokeWidth="0.5"
+                strokeOpacity="0.2"
+              />
+              <circle
+                cx="0"
+                cy="0"
+                r="4"
+                fill="white"
+                stroke="black"
+                strokeWidth="0.5"
                 strokeOpacity="0.5"
               />
-              <line
-                x1="25"
-                y1="0"
-                x2="70"
-                y2="0"
-                stroke="black"
-                strokeWidth="0.8"
-                strokeOpacity="0.3"
-              />
-              <line
-                x1="0"
-                y1="25"
-                x2="0"
-                y2="70"
-                stroke="black"
-                strokeWidth="0.8"
-                strokeOpacity="0.3"
-              />
-            </svg> */}
+            </svg>
 
             {/* Price Row (Mobile focused) */}
             <div className="flex md:hidden justify-between items-center border-b border-black/5 pb-4">
