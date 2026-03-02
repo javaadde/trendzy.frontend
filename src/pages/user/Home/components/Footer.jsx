@@ -77,7 +77,23 @@ function Footer() {
               INFO
             </h4>
             <ul className="space-y-4">
-              {["ABOUT US", "STORY", "SUSTAINABILITY", "CAREERS"].map((l) => (
+              <li key="ABOUT US">
+                <Link
+                  to="/about"
+                  className="text-[11px] font-bold tracking-[0.1em] text-black/40 hover:text-black hover:tracking-[0.2em] transition-all"
+                >
+                  ABOUT US
+                </Link>
+              </li>
+              <li key="STORY">
+                <Link
+                  to="/about"
+                  className="text-[11px] font-bold tracking-[0.1em] text-black/40 hover:text-black hover:tracking-[0.2em] transition-all"
+                >
+                  STORY
+                </Link>
+              </li>
+              {["SUSTAINABILITY", "CAREERS"].map((l) => (
                 <li key={l}>
                   <Link
                     to="/"

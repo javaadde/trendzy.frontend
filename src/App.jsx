@@ -18,6 +18,7 @@ import Products from "./pages/user/Products/Products.jsx";
 import ProductDetail from "./pages/user/Products/ProductDetail.jsx";
 import Orders from "./pages/user/Orders/Orders.jsx";
 import OrderDetails from "./pages/user/Orders/OrderDetails.jsx";
+import About from "./pages/user/About/About.jsx";
 
 // PAGES OF ERRORS
 import NotFoundPage from "./pages/error/404.jsx";
@@ -39,6 +40,9 @@ function App() {
         <Routes>
           {/* Home route - accessible to everyone */}
           <Route path="/" element={<Home />} />
+
+          {/* About us route */}
+          <Route path="/about" element={<About />} />
 
           {/* Login route */}
           <Route

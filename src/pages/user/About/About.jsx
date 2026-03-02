@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import Header from "../Home/components/Header";
 import Footer from "../Home/components/Footer";
 import AboutHero from "./components/AboutHero";
@@ -7,6 +8,10 @@ import Team from "./components/Team";
 import Reviews from "./components/Reviews";
 
 function About() {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div className="min-h-screen w-full bg-white">
       <Header />

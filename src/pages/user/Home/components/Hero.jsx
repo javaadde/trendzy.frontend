@@ -45,14 +45,14 @@ function Hero() {
   return (
     <section className="relative w-full h-[100svh] bg-white overflow-hidden pt-12 md:pt-16 flex flex-col md:flex-row items-center justify-center">
       {/* Background Large Text - Responsive sizing */}
-      <div className="absolute inset-x-0 top-[15%] md:top-[12%] flex items-center justify-center pointer-events-none select-none overflow-hidden z-0">
+      <div className="absolute inset-x-0 top-[18%] md:top-[15%] lg:top-[12%] flex items-center justify-center pointer-events-none select-none overflow-hidden z-0">
         <motion.h1
           initial={{ opacity: 0, scale: 0.98, y: 35 }}
           animate={{ opacity: 1, scale: 1, y: 1 }}
           transition={{ duration: 1.8, ease: [0.19, 1, 0.22, 1] }}
-          className="text-[25vw] md:text-[18vw] font-[900] leading-none text-[#F2F2F2] tracking-[0.02em] opacity-80 md:opacity-100"
+          className="text-[25vw] md:text-[16vw] lg:text-[18vw] font-[900] leading-none text-[#F2F2F2] tracking-[0.02em] opacity-80 md:opacity-100"
           style={{
-            fontFamily: "var(--font-display)",
+            fontFamily: "Olise",
           }}
         >
           trendzy
@@ -72,7 +72,7 @@ function Hero() {
             </span>
             <h2
               className="text-[70px] font-black leading-none tracking-[0.02em] text-black uppercase"
-              style={{ fontFamily: "var(--font-display)" }}
+              style={{ fontFamily: "Olise" }}
             >
               {productData.title}
             </h2>
@@ -84,23 +84,23 @@ function Hero() {
           initial={{ opacity: 0, x: -60 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 1.2, ease: [0.19, 1, 0.22, 1] }}
-          className="hidden md:block w-[400px] space-y-10 z-20"
+          className="hidden md:block w-[300px] lg:w-[400px] space-y-10 z-20"
         >
           <div className="space-y-6">
-            <span className="text-[13px] font-black tracking-[0.4em] text-[#A3A3A3] uppercase block">
+            <span className="text-[11px] lg:text-[13px] font-black tracking-[0.4em] text-[#A3A3A3] uppercase block">
               {productData.subtitle}
             </span>
             <h2
-              className="text-[110px] font-black leading-[0.75] tracking-[0.02em] text-black"
+              className="text-[80px] lg:text-[110px] font-black leading-[0.75] tracking-[0.02em] text-black"
               style={{
-                fontFamily: "var(--font-display)",
+                fontFamily: "Olise",
               }}
             >
               {productData.title}
             </h2>
           </div>
 
-          <p className="text-[16px] leading-[1.8] text-black font-medium max-w-[340px]">
+          <p className="text-[14px] lg:text-[16px] leading-[1.8] text-black font-medium max-w-[340px]">
             {productData.description}
           </p>
         </motion.div>
@@ -117,7 +117,7 @@ function Hero() {
             transition={{ duration: 1.5, ease: [0.19, 1, 0.22, 1] }}
             src="/hero.png"
             alt="ilux model"
-            className="h-full w-auto object-contain object-bottom scale-[1.2] md:scale-[1.1]"
+            className="h-full w-auto object-contain object-bottom scale-[1.2] md:scale-[0.9] lg:scale-[1.1]"
           />
 
           {/* Product Callout (Desktop Only) */}
@@ -185,7 +185,7 @@ function Hero() {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, ease: [0.19, 1, 0.22, 1], delay: 0.4 }}
-          className="w-full md:w-[380px] z-20 pointer-events-auto mt-auto md:mt-0"
+          className="w-full md:w-[280px] lg:w-[340px] h-auto z-20 pointer-events-auto mt-auto md:mt-0"
         >
           <div
             className="relative w-full p-6 md:p-10 pt-10 md:pt-16 space-y-8 md:space-y-12 bg-white/90 md:bg-white/60 backdrop-blur-xl md:backdrop-blur-md border border-black/5"
@@ -195,7 +195,7 @@ function Hero() {
             }}
           >
             {/* Architectural Frame Accents (Desktop only for precision) */}
-            <svg
+            {/* <svg
               className="absolute inset-0 w-full h-full pointer-events-none overflow-visible hidden md:block"
               style={{ zIndex: 30 }}
             >
@@ -226,7 +226,7 @@ function Hero() {
                 strokeWidth="0.8"
                 strokeOpacity="0.3"
               />
-            </svg>
+            </svg> */}
 
             {/* Price Row (Mobile focused) */}
             <div className="flex md:hidden justify-between items-center border-b border-black/5 pb-4">
@@ -238,10 +238,10 @@ function Hero() {
               </span>
             </div>
 
-            <div className="flex flex-col items-end space-y-3 opacity-60 hidden md:flex">
+            <div className="flex flex-col items-end space-y-3 opacity-60 hidden lg:flex">
               <span
                 className="text-[50px] font-black text-black/[0.08] leading-none select-none"
-                style={{ fontFamily: "var(--font-display)" }}
+                style={{ fontFamily: "Olise" }}
               >
                 01
               </span>

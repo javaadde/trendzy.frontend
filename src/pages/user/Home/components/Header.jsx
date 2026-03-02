@@ -59,7 +59,7 @@ function Header() {
               COLLECTIONS
             </Link>
             <Link
-              to="/"
+              to="/about"
               className="text-[11px] font-bold tracking-[0.1em] uppercase hover:opacity-50 transition-opacity"
             >
               ABOUT
@@ -187,16 +187,34 @@ function Header() {
               </button>
             </div>
             <nav className="flex flex-col gap-8">
-              {["COLLECTIONS", "SHOP", "ABOUT", "LOG IN"].map((item) => (
-                <Link
-                  key={item}
-                  to={item === "LOG IN" ? "/login" : "/products"}
-                  onClick={() => setIsNavOpen(false)}
-                  className="text-4xl font-black tracking-tighter uppercase"
-                >
-                  {item}
-                </Link>
-              ))}
+              <Link
+                to="/products"
+                onClick={() => setIsNavOpen(false)}
+                className="text-4xl font-black tracking-tighter uppercase"
+              >
+                COLLECTIONS
+              </Link>
+              <Link
+                to="/products"
+                onClick={() => setIsNavOpen(false)}
+                className="text-4xl font-black tracking-tighter uppercase"
+              >
+                SHOP
+              </Link>
+              <Link
+                to="/about"
+                onClick={() => setIsNavOpen(false)}
+                className="text-4xl font-black tracking-tighter uppercase"
+              >
+                ABOUT
+              </Link>
+              <Link
+                to="/login"
+                onClick={() => setIsNavOpen(false)}
+                className="text-4xl font-black tracking-tighter uppercase"
+              >
+                LOG IN
+              </Link>
             </nav>
           </motion.div>
         )}
