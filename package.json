@@ -13,6 +13,7 @@
     "@hookform/resolvers": "^5.2.2",
     "@tailwindcss/vite": "^4.1.13",
     "axios": "^1.12.2",
+    "framer-motion": "^12.34.3",
     "lucide-react": "^0.544.0",
     "object-to-formdata": "^4.5.1",
     "react": "^19.1.1",

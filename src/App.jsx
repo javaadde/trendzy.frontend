@@ -1,8 +1,4 @@
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import axios from "./axios.jsx";
 
 // PROTECTING HANDLERS
@@ -10,7 +6,6 @@ import ProtectedToAdmin from "./ProtectedToAdmin.jsx";
 import ProtectedRoute from "./ProtectedRoute.jsx";
 import { ProtectedIfLogined } from "./ProtectedIfLogined.jsx";
 import { ProtectedIfNotLogined } from "./ProtectedIfNotLogined.jsx";
-
 
 //  PAGES OF USERS
 import Home from "./pages/user/Home/Home.jsx";
@@ -22,7 +17,6 @@ import Cart from "./pages/user/Cart/Cart.jsx";
 import Products from "./pages/user/Products/Products.jsx";
 import Orders from "./pages/user/Orders/Orders.jsx";
 import OrderDetails from "./pages/user/Orders/OrderDetails.jsx";
-
 
 // PAGES OF ERRORS
 import NotFoundPage from "./pages/error/404.jsx";
@@ -37,72 +31,66 @@ import OrderDetailsForAdmin from "./pages/admin/Orders/OrderDetails.jsx";
 import UsersAdmin from "./pages/admin/Users/Users.jsx";
 import Category from "./pages/admin/Categories/Category.jsx";
 
-
-
-
 function App() {
-
-
   return (
     <>
-
-
       <Router>
         <Routes>
-          {/* Home route */}
+          {/* Home route - accessible to everyone */}
+          <Route path="/" element={<Home />} />
+
+          {/* Login route */}
           <Route
-            path="/"
+            path="/login"
             element={
-              <ProtectedRoute>
-                <Home />
-              </ProtectedRoute>
+              <ProtectedIfLogined>
+                <SignIn />
+              </ProtectedIfLogined>
             }
           />
 
-          {/* unkown user home route */}
-          <Route path="/unknown" element={<HomeNotLogined />} />
-
-          {/* Login route */}
-          <Route path="/login" element={
-            <ProtectedIfLogined>
-              <SignIn />
-            </ProtectedIfLogined>
-          } />
-
           {/* signup route */}
-          <Route path="/signUp" element={
-            <ProtectedIfLogined>
-              <SignUp />
-            </ProtectedIfLogined>
-          } />
-
-
+          <Route
+            path="/signUp"
+            element={
+              <ProtectedIfLogined>
+                <SignUp />
+              </ProtectedIfLogined>
+            }
+          />
 
           {/* settings route */}
           <Route path="/settings" element={<Setting />} />
 
           {/* cart route */}
-          <Route path="/cart" element={
-            <ProtectedIfNotLogined>
-              <Cart />
-            </ProtectedIfNotLogined>
-          } />
-
+          <Route
+            path="/cart"
+            element={
+              <ProtectedIfNotLogined>
+                <Cart />
+              </ProtectedIfNotLogined>
+            }
+          />
 
           {/* cart route */}
-          <Route path="/products" element={
-            <ProtectedIfNotLogined>
-              <Products />
-            </ProtectedIfNotLogined>
-          } />
-
+          <Route
+            path="/products"
+            element={
+              <ProtectedIfNotLogined>
+                <Products />
+              </ProtectedIfNotLogined>
+            }
+          />
 
           {/* ORDERS route */}
-          <Route path="/orders" element={
-            <ProtectedIfNotLogined>
-              <Orders />
-            </ProtectedIfNotLogined>
-          } />
+          <Route
+            path="/orders"
+            element={
+              <ProtectedIfNotLogined>
+                <Orders />
+              </ProtectedIfNotLogined>
+            }
+          />
 
           {/* ORDERS route */}
           <Route path="/order/details/:id" element={<OrderDetails />} />
@@ -178,11 +166,8 @@ function App() {
           />
 
           <Route path="*" element={<NotFoundPage />} />
-
         </Routes>
       </Router>
-
-
     </>
   );
 }

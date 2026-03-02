@@ -16,11 +16,87 @@ function Main() {
       axios
         .get("/products")
         .then((res) => {
-          setProducts(res.data);
+          if (res.data && res.data.length > 0) {
+            setProducts(res.data);
+          } else {
+            throw new Error("Empty products");
+          }
           setIsLoading(false);
         })
         .catch((err) => {
-          console.log(err);
+          console.log("Backend failed, using fallback products", err);
+          setProducts([
+            {
+              _id: "f1",
+              name: "SKIN LONG SLEEVE",
+              price: 45,
+              category_id: "Topwear",
+              url: "/models/10.avif",
+            },
+            {
+              _id: "f2",
+              name: "HONGOR UNISEX DRESS",
+              price: 125,
+              category_id: "Topwear",
+              url: "/models/11.avif",
+            },
+            {
+              _id: "f3",
+              name: "DOROTA TANK TOP",
+              price: 65,
+              category_id: "Topwear",
+              url: "/models/12.avif",
+            },
+            {
+              _id: "f4",
+              name: "STEVE BLACK",
+              price: 78,
+              category_id: "Bottomwear",
+              url: "/models/6.avif",
+            },
+            {
+              _id: "f5",
+              name: "KOTTI PANT",
+              price: 100.97,
+              category_id: "Bottomwear",
+              url: "/models/7.avif",
+            },
+            {
+              _id: "f6",
+              name: "MESH BLAZER",
+              price: 150,
+              category_id: "Topwear",
+              url: "/models/4.avif",
+            },
+            {
+              _id: "f7",
+              name: "URBAN JACKET",
+              price: 95,
+              category_id: "Topwear",
+              url: "/models/13.avif",
+            },
+            {
+              _id: "f8",
+              name: "SILK SCARF",
+              price: 35,
+              category_id: "Accessories",
+              url: "/models/14.avif",
+            },
+            {
+              _id: "f9",
+              name: "LEATHER BELT",
+              price: 55,
+              category_id: "Accessories",
+              url: "/models/15.avif",
+            },
+            {
+              _id: "f10",
+              name: "FLORAL MAXI DRESS",
+              price: 110,
+              category_id: "New Arrivals",
+              url: "/models/8.avif",
+            },
+          ]);
           setIsLoading(false);
         });
     };
@@ -29,9 +105,21 @@ function Main() {
       axios
         .get("/category")
         .then((res) => {
-          setAllCtegory(res.data);
+          if (res.data && res.data.length > 0) {
+            setAllCtegory(res.data);
+          } else {
+            throw new Error("Empty categories");
+          }
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+          console.log("Backend failed, using fallback categories", err);
+          setAllCtegory([
+            { name: "Topwear" },
+            { name: "Bottomwear" },
+            { name: "Accessories" },
+            { name: "New Arrivals" },
+          ]);
+        });
     };
 
     fetchProducts();
@@ -74,7 +162,10 @@ function Main() {
             <Link to="/" className="flex-shrink-0 group">
               <h1
                 className="text-xl lg:text-2xl font-semibold tracking-[0.2em]"
-                style={{ fontFamily: "var(--font-display)", color: "var(--color-primary)" }}
+                style={{
+                  fontFamily: "var(--font-display)",
+                  color: "var(--color-primary)",
+                }}
               >
                 TRENDZY
               </h1>
@@ -95,7 +186,9 @@ function Main() {
                   fontFamily: "var(--font-body)",
                 }}
                 onFocus={(e) => (e.target.style.borderBottomColor = "black")}
-                onBlur={(e) => (e.target.style.borderBottomColor = "var(--color-border)")}
+                onBlur={(e) =>
+                  (e.target.style.borderBottomColor = "var(--color-border)")
+                }
               />
               {searchQuery && (
                 <button
@@ -137,8 +230,11 @@ function Main() {
               <div className="flex flex-col gap-6">
                 <button
                   onClick={() => setCategory("")}
-                  className={`text-left text-xs font-bold tracking-widest uppercase transition-all duration-300 ${!category ? "text-black pl-4 border-l-2 border-black" : "text-gray-400 hover:text-black"
-                    }`}
+                  className={`text-left text-xs font-bold tracking-widest uppercase transition-all duration-300 ${
+                    !category
+                      ? "text-black pl-4 border-l-2 border-black"
+                      : "text-gray-400 hover:text-black"
+                  }`}
                   style={{ fontFamily: "var(--font-body)" }}
                 >
                   All Collections
@@ -147,10 +243,11 @@ function Main() {
                   <button
                     key={i}
                     onClick={() => setCategory(cat.name)}
-                    className={`text-left text-xs font-bold tracking-widest uppercase transition-all duration-300 ${category === cat.name
+                    className={`text-left text-xs font-bold tracking-widest uppercase transition-all duration-300 ${
+                      category === cat.name
                         ? "text-black pl-4 border-l-2 border-black"
                         : "text-gray-400 hover:text-black"
-                      }`}
+                    }`}
                     style={{ fontFamily: "var(--font-body)" }}
                   >
                     {cat.name}
@@ -161,7 +258,9 @@ function Main() {
               {/* Editorial Note */}
               <div className="mt-20 pt-10 border-t border-gray-100">
                 <p className="text-[10px] italic leading-relaxed text-gray-400 font-serif">
-                  "Curating the finest silhouettes for the modern individual. Our collections are defined by a commitment to timeless elegance and superior craftsmanship."
+                  "Curating the finest silhouettes for the modern individual.
+                  Our collections are defined by a commitment to timeless
+                  elegance and superior craftsmanship."
                 </p>
               </div>
             </div>

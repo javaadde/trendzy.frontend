@@ -1,183 +1,150 @@
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Search, X, Menu, ShoppingBag, User, Heart } from "lucide-react";
+import axios from "../../../../axios";
 
 function Header() {
-  const [isScrolled, setIsScrolled] = useState(false);
   const [isNavOpen, setIsNavOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    axios
+      .get("/", { withCredentials: true })
+      .then((res) => {
+        if (res.data.is) setIsLoggedIn(true);
+      })
+      .catch(() => setIsLoggedIn(false));
   }, []);
-
-  const openNav = () => setIsNavOpen(true);
-  const closeNav = () => setIsNavOpen(false);
 
   return (
     <>
-      {/* Premium Header */}
-      <header
-        className={`sticky top-0 z-50 transition-all duration-500 ${isScrolled
-            ? "bg-white/95 backdrop-blur-xl shadow-sm"
-            : "bg-white"
-          }`}
-        style={{ borderBottom: "1px solid var(--color-border-light)" }}
+      <motion.header
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.19, 1, 0.22, 1] }}
+        className="fixed top-0 left-0 right-0 z-50 pointer-events-none"
       >
-        <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
-          <div className="flex justify-between items-center h-20">
-            {/* Logo */}
-            <Link to="/" className="flex-shrink-0 group">
-              <h1
-                className="text-2xl lg:text-3xl font-semibold tracking-widest"
-                style={{
-                  fontFamily: "var(--font-display)",
-                  color: "var(--color-primary)",
-                }}
-              >
-                TRENDZY
-              </h1>
+        <div className="flex items-start justify-between">
+          {/* ── LEFT PANEL: nav links, right edge cuts diagonally inward ── */}
+          <div
+            className="pointer-events-auto hidden md:flex items-center gap-8 bg-white/80 backdrop-blur-md px-10 py-5 pr-20"
+            style={{
+              clipPath: "polygon(0 0, 100% 0, calc(100% - 40px) 100%, 0 100%)",
+            }}
+          >
+            <button
+              onClick={() => setIsNavOpen(true)}
+              className="text-[11px] font-bold tracking-[0.1em] uppercase hover:opacity-50 transition-opacity"
+            >
+              <Menu size={16} strokeWidth={2.5} />
+            </button>
+            <Link
+              to="/products"
+              className="text-[11px] font-bold tracking-[0.1em] uppercase hover:opacity-50 transition-opacity"
+            >
+              COLLECTIONS
             </Link>
+            <Link
+              to="/"
+              className="text-[11px] font-bold tracking-[0.1em] uppercase hover:opacity-50 transition-opacity"
+            >
+              ABOUT
+            </Link>
+          </div>
 
-            {/* Navigation - Desktop */}
-            <nav className="hidden md:flex items-center gap-10">
-              {[
-                { label: "Shop", href: "/products" },
-                { label: "Collections", href: "#category" },
-                { label: "Support", href: "#" },
-              ].map((item, i) => (
-                <a
-                  key={i}
-                  href={item.href}
-                  className="relative py-2 text-sm font-medium tracking-widest uppercase transition-colors duration-300 group"
-                  style={{
-                    fontFamily: "var(--font-body)",
-                    color: "var(--color-text-primary)",
-                  }}
-                >
-                  {item.label}
-                  <span
-                    className="absolute bottom-0 left-0 w-0 h-px bg-black transition-all duration-300 group-hover:w-full"
-                  />
-                </a>
-              ))}
-            </nav>
+          {/* Mobile hamburger (small screens) */}
+          <button
+            onClick={() => setIsNavOpen(true)}
+            className="pointer-events-auto md:hidden bg-white/80 backdrop-blur-md p-4"
+          >
+            <Menu size={20} strokeWidth={2} />
+          </button>
 
-            {/* Actions */}
-            <div className="flex items-center gap-6">
-              {/* Search Icon */}
-              <button
-                className="hidden md:flex items-center justify-center w-10 h-10 transition-colors duration-300 hover:opacity-60"
-                style={{ color: "var(--color-text-primary)" }}
-              >
-                <i className="fa-solid fa-magnifying-glass text-lg"></i>
-              </button>
+          {/* ── CENTER: fully transparent, no content ── */}
+          <div className="flex-1" />
 
-              {/* Cart */}
-              <Link to="/cart">
-                <button
-                  className="relative flex items-center justify-center w-10 h-10 transition-all duration-300 hover:opacity-60"
-                  style={{ color: "var(--color-text-primary)" }}
-                >
-                  <i className="fa-solid fa-bag-shopping text-xl"></i>
-                </button>
-              </Link>
+          {/* ── RIGHT PANEL: icons, left edge cuts diagonally (opposite angle) ── */}
+          <div
+            className="pointer-events-auto hidden md:flex items-center gap-7 bg-white/80 backdrop-blur-md px-10 py-5 pl-20"
+            style={{
+              clipPath: "polygon(40px 0, 100% 0, 100% 100%, 0 100%)",
+            }}
+          >
+            <button className="hover:opacity-50 transition-opacity">
+              <Search size={18} strokeWidth={2} />
+            </button>
+            <Link
+              to={isLoggedIn ? "/settings" : "/login"}
+              className="hover:opacity-50 transition-opacity"
+            >
+              <User size={18} strokeWidth={2} />
+            </Link>
+            <button className="hover:opacity-50 transition-opacity">
+              <Heart size={18} strokeWidth={2} />
+            </button>
+            <Link
+              to="/cart"
+              className="relative hover:opacity-50 transition-opacity"
+            >
+              <ShoppingBag size={18} strokeWidth={2} />
+              {cartCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-black text-white text-[9px] font-black rounded-full flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
+          </div>
 
-              {/* Account */}
-              <Link to="/settings" className="hidden md:block">
-                <button
-                  className="flex items-center justify-center w-10 h-10 transition-colors duration-300 hover:opacity-60"
-                  style={{ color: "var(--color-text-primary)" }}
-                >
-                  <i className="fa-regular fa-user text-xl"></i>
-                </button>
-              </Link>
+          {/* Mobile cart icon */}
+          <Link
+            to="/cart"
+            className="pointer-events-auto md:hidden bg-white/80 backdrop-blur-md p-4 relative"
+          >
+            <ShoppingBag size={20} strokeWidth={2} />
+            {cartCount > 0 && (
+              <span className="absolute top-2 right-2 w-4 h-4 bg-black text-white text-[9px] font-black rounded-full flex items-center justify-center">
+                {cartCount}
+              </span>
+            )}
+          </Link>
+        </div>
+      </motion.header>
 
-              {/* Mobile Menu Button */}
-              <button
-                onClick={openNav}
-                className="md:hidden flex items-center justify-center w-10 h-10"
-                style={{ color: "var(--color-text-primary)" }}
-              >
-                <i className="fa-solid fa-bars text-xl"></i>
+      {/* Mobile Menu */}
+      <AnimatePresence>
+        {isNavOpen && (
+          <motion.div
+            initial={{ x: "-100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "-100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="fixed inset-0 bg-white z-[100] p-8 flex flex-col"
+          >
+            <div className="flex justify-between items-center mb-16">
+              <span className="text-[14px] font-black tracking-tighter uppercase">
+                MENU
+              </span>
+              <button onClick={() => setIsNavOpen(false)}>
+                <X size={24} />
               </button>
             </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Mobile Navigation Overlay */}
-      <div
-        className={`fixed inset-0 bg-black/50 z-[100] transition-opacity duration-500 ${isNavOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-          }`}
-        onClick={closeNav}
-      />
-
-      {/* Mobile Navigation Panel */}
-      <div
-        className={`fixed top-0 right-0 h-full w-[85%] max-w-[400px] bg-white z-[101] transition-transform duration-500 ease-out ${isNavOpen ? "translate-x-0" : "translate-x-full"
-          }`}
-        style={{ boxShadow: isNavOpen ? "var(--shadow-2xl)" : "none" }}
-      >
-        {/* Close Button */}
-        <div className="flex justify-between items-center p-6 border-b" style={{ borderColor: "var(--color-border-light)" }}>
-          <span
-            className="text-xl font-semibold tracking-widest"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            MENU
-          </span>
-          <button
-            onClick={closeNav}
-            className="flex items-center justify-center w-10 h-10 transition-colors duration-300"
-            style={{ color: "var(--color-text-primary)" }}
-          >
-            <i className="fa-solid fa-xmark text-2xl"></i>
-          </button>
-        </div>
-
-        {/* Navigation Links */}
-        <nav className="py-8">
-          {[
-            { label: "Home", href: "/", icon: "fa-house" },
-            { label: "Shop", href: "/products", icon: "fa-bag-shopping" },
-            { label: "Collections", href: "/#category", icon: "fa-layer-group" },
-            { label: "Orders", href: "/orders", icon: "fa-box" },
-            { label: "Cart", href: "/cart", icon: "fa-cart-shopping" },
-            { label: "Account", href: "/settings", icon: "fa-user" },
-          ].map((item, index) => (
-            <Link
-              key={index}
-              to={item.href}
-              onClick={closeNav}
-              className="flex items-center gap-4 px-8 py-4 transition-all duration-300 hover:bg-gray-50"
-              style={{
-                fontFamily: "var(--font-body)",
-                color: "var(--color-text-primary)",
-              }}
-            >
-              <i className={`fa-solid ${item.icon} w-6 text-center opacity-60`}></i>
-              <span
-                className="text-base font-medium tracking-wide uppercase"
-              >
-                {item.label}
-              </span>
-            </Link>
-          ))}
-        </nav>
-
-        {/* Footer */}
-        <div className="absolute bottom-0 left-0 right-0 p-8 border-t" style={{ borderColor: "var(--color-border-light)" }}>
-          <p
-            className="text-xs tracking-wider uppercase text-center"
-            style={{ color: "var(--color-text-muted)" }}
-          >
-            © 2025 TRENDZY
-          </p>
-        </div>
-      </div>
+            <nav className="flex flex-col gap-8">
+              {["COLLECTIONS", "SHOP", "ABOUT", "LOG IN"].map((item) => (
+                <Link
+                  key={item}
+                  to="/"
+                  onClick={() => setIsNavOpen(false)}
+                  className="text-4xl font-black tracking-tighter uppercase"
+                >
+                  {item}
+                </Link>
+              ))}
+            </nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
