@@ -1,5 +1,6 @@
 import useCart from "../../hooks/useCart";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 function Pro(props) {
   const product_id = props.proId;
@@ -7,15 +8,18 @@ function Pro(props) {
   const [isAdding, setIsAdding] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     setIsAdding(true);
     addToCart(product_id);
     setTimeout(() => setIsAdding(false), 1000);
   };
 
   return (
-    <div
-      className="group relative animate-fade-in"
+    <Link
+      to={`/product/${product_id}`}
+      className="group relative animate-fade-in block"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -94,7 +98,7 @@ function Pro(props) {
 
       {/* Decorative hover line */}
       <div className="h-px w-0 bg-black transition-all duration-700 group-hover:w-full opacity-10" />
-    </div>
+    </Link>
   );
 }
 

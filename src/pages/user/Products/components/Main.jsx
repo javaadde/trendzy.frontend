@@ -1,13 +1,16 @@
 import Pro from "./pro";
 import axios from "../../../../axios";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 function Main() {
+  const [searchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState(searchParams.get("category") || "");
   const [allCategory, setAllCtegory] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(
+    searchParams.get("search") || "",
+  );
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -122,20 +125,27 @@ function Main() {
         });
     };
 
-    fetchProducts();
+    const initialSearch = searchParams.get("search");
+    if (initialSearch) {
+      showSearchResult(initialSearch);
+    } else {
+      fetchProducts();
+    }
     fetchAllCategories();
-  }, []);
+  }, [searchParams]);
 
   useEffect(() => {
-    if (!category) {
+    if (!category && !searchQuery) {
       axios.get("/products").then((res) => setProducts(res.data));
       return;
     }
-    setIsLoading(true);
-    axios.get(`/products/${category}`).then((res) => {
-      setProducts(res.data);
-      setIsLoading(false);
-    });
+    if (category) {
+      setIsLoading(true);
+      axios.get(`/products/${category}`).then((res) => {
+        setProducts(res.data);
+        setIsLoading(false);
+      });
+    }
   }, [category]);
 
   const showSearchResult = (value) => {

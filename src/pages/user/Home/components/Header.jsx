@@ -3,20 +3,32 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, X, Menu, ShoppingBag, User, Heart } from "lucide-react";
 import axios from "../../../../axios";
+import { useCartContext } from "../../../../context/CartContext";
 
 function Header() {
   const [isNavOpen, setIsNavOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [cartCount, setCartCount] = useState(0);
+  const { cartCount } = useCartContext();
 
   useEffect(() => {
+    // Check Auth
     axios
       .get("/", { withCredentials: true })
       .then((res) => {
-        if (res.data.is) setIsLoggedIn(true);
+        if (res.data.username) setIsLoggedIn(true);
       })
       .catch(() => setIsLoggedIn(false));
   }, []);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      window.location.href = `/products?search=${searchQuery}`;
+      setIsSearchOpen(false);
+    }
+  };
 
   return (
     <>
@@ -72,7 +84,10 @@ function Header() {
               clipPath: "polygon(40px 0, 100% 0, 100% 100%, 0 100%)",
             }}
           >
-            <button className="hover:opacity-50 transition-opacity">
+            <button
+              onClick={() => setIsSearchOpen(true)}
+              className="hover:opacity-50 transition-opacity"
+            >
               <Search size={18} strokeWidth={2} />
             </button>
             <Link
@@ -112,6 +127,47 @@ function Header() {
         </div>
       </motion.header>
 
+      {/* Search Overlay */}
+      <AnimatePresence>
+        {isSearchOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-white z-[150] flex flex-col items-center justify-center px-10"
+          >
+            <button
+              onClick={() => setIsSearchOpen(false)}
+              className="absolute top-10 right-10 hover:rotate-90 transition-transform duration-500"
+            >
+              <X size={32} />
+            </button>
+            <form onSubmit={handleSearch} className="w-full max-w-4xl">
+              <input
+                autoFocus
+                type="text"
+                placeholder="SEARCH TRENDZY ARCHIVE..."
+                className="w-full bg-transparent border-b-4 border-black text-4xl md:text-6xl font-black tracking-tighter uppercase focus:outline-none placeholder:text-black/5 pb-4"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <div className="flex gap-4 mt-8">
+                {["DENIM", "OUTERWEAR", "ARCHIVE", "LIMITED"].map((tag) => (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => setSearchQuery(tag)}
+                    className="text-[11px] font-black tracking-widest border border-black/10 px-4 py-2 hover:bg-black hover:text-white transition-all"
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            </form>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Mobile Menu */}
       <AnimatePresence>
         {isNavOpen && (
@@ -134,7 +190,7 @@ function Header() {
               {["COLLECTIONS", "SHOP", "ABOUT", "LOG IN"].map((item) => (
                 <Link
                   key={item}
-                  to="/"
+                  to={item === "LOG IN" ? "/login" : "/products"}
                   onClick={() => setIsNavOpen(false)}
                   className="text-4xl font-black tracking-tighter uppercase"
                 >

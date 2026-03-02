@@ -15,6 +15,7 @@ import SignUp from "./pages/user/SignUp/SignUp.jsx";
 import Setting from "./pages/user/Settings/Setting.jsx";
 import Cart from "./pages/user/Cart/Cart.jsx";
 import Products from "./pages/user/Products/Products.jsx";
+import ProductDetail from "./pages/user/Products/ProductDetail.jsx";
 import Orders from "./pages/user/Orders/Orders.jsx";
 import OrderDetails from "./pages/user/Orders/OrderDetails.jsx";
 
@@ -72,17 +73,14 @@ function App() {
             }
           />
 
-          {/* cart route */}
-          <Route
-            path="/products"
-            element={
-              <ProtectedIfNotLogined>
-                <Products />
-              </ProtectedIfNotLogined>
-            }
-          />
+          {/* products route */}
+          <Route path="/products" element={<Products />} />
+
+          {/* product detail route */}
+          <Route path="/product/:id" element={<ProductDetail />} />
 
           {/* ORDERS route */}
+
           <Route
             path="/orders"
             element={
